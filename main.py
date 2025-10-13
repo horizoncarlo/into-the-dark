@@ -3,13 +3,17 @@ import tcod
 
 from engine import Engine
 from entity import Entity
-from game_map import GameMap
+from gen_map import generate_dungeon
 from input_handlers import EventHandler
 
 # Increasing the size values will "zoom out" on the content
 HUD_SIZE = 5
 WIDTH, HEIGHT = 75, 40
 MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
+
+ROOM_MAX_SIZE = 10
+ROOM_MIN_SIZE = 6
+MAX_ROOMS = 50
 
 # Legal requirement
 GOLDENROD_RGB = [218, 165, 32]
@@ -38,7 +42,14 @@ def main() -> None:
     npc = Entity(int(WIDTH / 2 - 5), int(HEIGHT / 2), "☻", CORNFLOWER_RGB)
     entities = {npc, player}
 
-    game_map = GameMap(MAP_WIDTH, MAP_HEIGHT)
+    game_map = generate_dungeon(
+        max_rooms=MAX_ROOMS,
+        room_min_size=ROOM_MIN_SIZE,
+        room_max_size=ROOM_MAX_SIZE,
+        map_width=MAP_WIDTH,
+        map_height=MAP_HEIGHT,
+        player=player
+    )
 
     engine = Engine(entities, event_handler, game_map, player)
 

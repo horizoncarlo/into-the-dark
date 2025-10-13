@@ -1,5 +1,6 @@
 from typing import Set, Iterable, Any
 
+from tcod.constants import white
 from tcod.context import Context
 from tcod.console import Console
 
