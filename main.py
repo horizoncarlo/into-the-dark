@@ -8,7 +8,8 @@ from input_handlers import EventHandler
 
 # Increasing the size values will "zoom out" on the content
 HUD_SIZE = 5
-WIDTH, HEIGHT = 75, 40
+# WIDTH, HEIGHT = 75, 40
+WIDTH, HEIGHT = 79, 48
 MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
 
 ROOM_MAX_SIZE = 10
@@ -38,7 +39,7 @@ def main() -> None:
     # tileset = tcod.tileset.load_tilesheet("assets/Runeset_24x24.png", 16, 16, tcod.tileset.CHARMAP_CP437)
     # tileset = tcod.tileset.load_tilesheet("assets/Teeto_K_18x18.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
-    player = Entity(int(WIDTH / 2), int(HEIGHT / 2), "☺", GOLDENROD_RGB)
+    player = Entity(int(WIDTH / 2), int(HEIGHT / 2), "☺", GOLDENROD_RGB, light_radius=4)
     npc = Entity(int(WIDTH / 2 - 5), int(HEIGHT / 2), "☻", CORNFLOWER_RGB)
     entities = {npc, player}
 
