@@ -33,11 +33,12 @@ def new_tile(
 
 # Represents unexplored, unseen tiles
 SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
+TORCH_COLOR_BASE = (150, 130, 0)
 
 floor = new_tile(
     walkable=True, transparent=True,
     dark=(ord("░"), (30, 30, 50), (20, 20, 20)),
-    light=(ord("░"), (30, 30, 50), (150, 130, 0))
+    light=(ord("░"), (30, 30, 50), TORCH_COLOR_BASE)
 )
 
 wall_color = dark=(ord("█"), (40, 40, 60), (80, 80, 80))

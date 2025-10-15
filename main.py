@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
+import random
+
 import tcod
+import time
 
 from engine import Engine
 from entity import Entity
 from gen_map import generate_dungeon
 from input_handlers import EventHandler
+
+FPS = 30
 
 # Increasing the size values will "zoom out" on the content
 HUD_SIZE = 5
@@ -67,18 +72,34 @@ def main() -> None:
         # root_console = tcod.console.Console(rec_width+1, rec_height, order="F")
 
         root_console = tcod.console.Console(WIDTH, HEIGHT, order="F")
+        frame_duration = 1 / FPS
+        last_frame = time.time()
 
         while True:
-            engine.render(root_console, context)
+            now = time.time()
 
-            events = tcod.event.wait()
+            events = list(tcod.event.get())
+            if events:
+                engine.handle_events(events)
 
-            engine.handle_events(events)
+            if now - last_frame >= frame_duration:
+                last_frame = now
+                engine.render(root_console, context)
 
-            # Alternative approach from TCOD doc tutorial, nice part is the magnification
-            # console = context.new_console(magnification=2)
-            # console.print(x=1, y=10, string="@")
-            # context.present(console, keep_aspect=True, integer_scaling=True)
+            time.sleep(max(0, frame_duration - (time.time() - now)))
+
+        # Original tutorial code, replaced when we wanted to mess around with torch flickering (done in engine)
+        # while True:
+        #     engine.render(root_console, context)
+        #
+        #     events = tcod.event.wait()
+        #
+        #     engine.handle_events(events)
+        #
+        #     # Alternative approach from TCOD doc tutorial, nice part is the magnification
+        #     # console = context.new_console(magnification=2)
+        #     # console.print(x=1, y=10, string="@")
+        #     # context.present(console, keep_aspect=True, integer_scaling=True)
 
 if __name__ == "__main__":
     main()

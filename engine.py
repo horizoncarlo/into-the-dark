@@ -1,21 +1,32 @@
+import numpy as np  # type: ignore
 from typing import Set, Iterable, Any
 
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
+import tile_types
 from entity import Entity
 from game_map import GameMap
 from input_handlers import EventHandler
 
+import time
+import random
+
 class Engine:
-    MAP_BORDER_COLOR = [50, 50, 65]
+    TORCH_FLICKER_INTERVAL_MIN = 0.05
+    TORCH_FLICKER_INTERVAL_MAX = 0.5
+    TORCH_FLICKER_COLOR_MIN = -20
+    TORCH_FLICKER_COLOR_MAX = 25
+    MAP_BORDER_COLOR = [20, 0, 20]
 
     def __init__(self, entities: Set[Entity], event_handler: EventHandler, game_map: GameMap, player: Entity):
         self.entities = entities
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
+        self._last_flicker = time.time()
+        self._next_flicker_interval = 1
         self.update_fov()
 
     def handle_events(self, events: Iterable[Any]) -> None:
@@ -39,7 +50,22 @@ class Engine:
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
 
+    def _flicker_torch(self):
+        now = time.time()
+        if now - self._last_flicker >= self._next_flicker_interval:
+            base = np.array(tile_types.TORCH_COLOR_BASE)
+            variation = random.randint(self.TORCH_FLICKER_COLOR_MIN, self.TORCH_FLICKER_COLOR_MAX)
+            color = np.clip(base + variation, 0, 255)
+            flicker_color = tuple(color.astype(int))
+
+            floor_mask = self.game_map.tiles["walkable"] & self.game_map.tiles["transparent"]
+            self.game_map.tiles["light"]["bg"][floor_mask] = flicker_color
+            self._next_flicker_interval = random.uniform(self.TORCH_FLICKER_INTERVAL_MIN, self.TORCH_FLICKER_INTERVAL_MAX)
+            self._last_flicker = now
+
     def render(self, console: Console, context: Context) -> None:
+        self._flicker_torch()
+
         self.game_map.render(console)
 
         for entity in self.entities:
