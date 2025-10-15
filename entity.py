@@ -24,7 +24,8 @@ class Entity:
         x: int = 0,
         y: int = 0,
         char: str = "?",
-        color: Tuple[int, int, int] = (255, 255, 255),
+        fg_color: Tuple[int, int, int] = (255, 255, 255),
+        bg_color: Tuple[int, int, int] = None,
         name: str = "<Unnamed>",
         light_radius: int = 8,
         blocks_movement: bool = False,
@@ -33,7 +34,8 @@ class Entity:
         self.x = x
         self.y = y
         self.char = char
-        self.color = color
+        self.fg_color = fg_color
+        self.bg_color = bg_color
         self.name = name
         self.light_radius = light_radius
         self.blocks_movement = blocks_movement
@@ -74,7 +76,8 @@ class Actor(Entity):
         x: int = 0,
         y: int = 0,
         char: str = "?",
-        color: Tuple[int, int, int] = (255, 255, 255),
+        fg_color: Tuple[int, int, int] = (255, 255, 255),
+        bg_color: Tuple[int, int, int] = None,
         name: str = "<Unnamed>",
         light_radius: int = 8,
         ai_cls: Type[BaseAI],
@@ -84,7 +87,8 @@ class Actor(Entity):
             x=x,
             y=y,
             char=char,
-            color=color,
+            fg_color=fg_color,
+            bg_color=bg_color,
             name=name,
             light_radius=light_radius,
             blocks_movement=True,

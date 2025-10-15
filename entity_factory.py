@@ -7,7 +7,8 @@ from entity import Actor
 # The heroic hero
 player = Actor(
     char="☺",
-    color=colors.GOLDENROD_RGB,
+    fg_color=colors.CORNFLOWER_RGB,
+    bg_color=(0, 0, 0),
     name="Player",
     ai_cls=HostileEnemy,
     light_radius=4,
@@ -17,14 +18,14 @@ player = Actor(
 # Monsters
 orc = Actor(
     char="Ω",
-    color=(63, 127, 63),
+    fg_color=(63, 127, 63),
     name="Orc",
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=10, defense=0, power=3),
 )
 troll = Actor(
     char="☻",
-    color=(0, 240, 0),
+    fg_color=(0, 240, 0),
     name="Troll",
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=16, defense=1, power=4),

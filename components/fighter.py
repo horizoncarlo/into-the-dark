@@ -38,7 +38,8 @@ class Fighter(BaseComponent):
             death_message = f"{self.entity.name} is dead!"
             self.entity.char = "≈"
 
-        self.entity.color = colors.DEAD_BLOOD_RGB
+        self.entity.fg_color = colors.DEAD_BLOOD_FG_RGB
+        self.entity.bg_color = colors.DEAD_BLOOD_BG_RGB
         self.entity.blocks_movement = False
         self.entity.render_order = RenderOrder.CORPSE
         self.entity.ai = None

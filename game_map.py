@@ -3,7 +3,7 @@ from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
-
+from constants import general
 from entity import Actor
 import tile_types
 
@@ -56,21 +56,21 @@ class GameMap:
         return None
 
     def in_bounds(self, x: int, y: int) -> bool:
-        """Return True if x and y are inside of the bounds of this map."""
+        """Return True if x and y are inside of the bounds of this map"""
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console) -> None:
         """
-        Renders the map.
+        Renders the map
 
-        If a tile is in the "visible" array, then draw it with the "light" colors.
-        If it isn't, but it's in the "explored" array, then draw it with the "dark" colors.
-        Otherwise, the default is "SHROUD".
+        If a tile is in the "visible" array, then draw it with the "light" colors
+        If it isn't, but it's in the "explored" array, then draw it with the "dark" colors
+        Otherwise, the default is the fog of war
         """
         console.rgb[0 : self.width, 0 : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=tile_types.SHROUD
+            default=general.FOG_OF_WAR
         )
 
         entities_sorted_for_rendering = sorted(
@@ -81,6 +81,6 @@ class GameMap:
            # Only print entities that are in the FOV
            if self.visible[entity.x, entity.y]:
                console.print(
-                   x=entity.x, y=entity.y, string=entity.char, fg=entity.color
+                   x=entity.x, y=entity.y, string=entity.char, fg=entity.fg_color, bg=entity.bg_color
                )
 
