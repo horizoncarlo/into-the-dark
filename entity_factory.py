@@ -1,8 +1,31 @@
-import colors
+from constants import colors
 
-from entity import Entity
+from components.ai import HostileEnemy
+from components.fighter import Fighter
+from entity import Actor
 
-player = Entity(char="☺", color=colors.GOLDENROD_RGB, name="Player", light_radius=4, blocks_movement=True)
+# The heroic hero
+player = Actor(
+    char="☺",
+    color=colors.GOLDENROD_RGB,
+    name="Player",
+    ai_cls=HostileEnemy,
+    light_radius=4,
+    fighter=Fighter(hp=30, defense=2, power=5),
+)
 
-orc = Entity(char="Ω", color=(63, 127, 63), name="Orc", blocks_movement=True)
-troll = Entity(char="☻", color=(0, 240, 0), name="Troll", blocks_movement=True)
+# Monsters
+orc = Actor(
+    char="Ω",
+    color=(63, 127, 63),
+    name="Orc",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=10, defense=0, power=3),
+)
+troll = Actor(
+    char="☻",
+    color=(0, 240, 0),
+    name="Troll",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=16, defense=1, power=4),
+)

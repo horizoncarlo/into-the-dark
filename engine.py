@@ -1,54 +1,47 @@
+from __future__ import annotations
 import numpy as np  # type: ignore
-from typing import Iterable, Any
 
+from typing import TYPE_CHECKING, Tuple
+
+import tcod.constants
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-import colors
-from entity import Entity
-from game_map import GameMap
-from input_handlers import EventHandler
+from constants import colors, general
+from input_handlers import MainGameEventHandler
 
 import time
 import random
 
-class Engine:
-    TORCH_FLICKER_INTERVAL_MIN = 0.05
-    TORCH_FLICKER_INTERVAL_MAX = 0.5
-    TORCH_FLICKER_COLOR_MIN = -20
-    TORCH_FLICKER_COLOR_MAX = 25
+if TYPE_CHECKING:
+    from entity import Actor
+    from game_map import GameMap
+    from input_handlers import EventHandler
 
-    def __init__(self, event_handler: EventHandler, game_map: GameMap, player: Entity):
-        self.event_handler = event_handler
-        self.game_map = game_map
+class Engine:
+    game_map: GameMap
+
+    def __init__(self, player: Actor):
+        self.event_handler: EventHandler = MainGameEventHandler(self)
         self.player = player
         self._last_flicker = time.time()
         self._next_flicker_interval = 1
-        self.update_fov()
 
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
-            print(f"The {entity.name} wonders when it will get to take a real turn")
-
-    def handle_events(self, events: Iterable[Any]) -> None:
-        for event in events:
-            action = self.event_handler.dispatch(event)
-
-            if action is None:
-                continue
-
-            action.perform(self, self.player)
-
-            self.handle_enemy_turns()
-            self.update_fov() # Update the FOV before the player's next action
+            if entity.ai:
+                entity.ai.perform()
 
     def update_fov(self) -> None:
-        """Recompute the visible area based on the players point of view."""
+        """Recompute the visible area based on the players point of view"""
         self.game_map.visible[:] = compute_fov(
             self.game_map.tiles["transparent"],
             (self.player.x, self.player.y),
-            radius=self.player.light_radius
+            radius=self.player.light_radius,
+            # TODO See the really good article on the FOV options:
+            # https://www.roguebasin.com/index.php?title=Comparative_study_of_field_of_view_algorithms_for_2D_grid_based_worlds
+            algorithm=tcod.constants.FOV_PERMISSIVE_1
         )
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
@@ -57,17 +50,29 @@ class Engine:
         now = time.time()
         if now - self._last_flicker >= self._next_flicker_interval:
             base = np.array(colors.TORCH_BASE_RGB)
-            variation = random.randint(self.TORCH_FLICKER_COLOR_MIN, self.TORCH_FLICKER_COLOR_MAX)
+            variation = random.randint(general.TORCH_FLICKER_COLOR_MIN, general.TORCH_FLICKER_COLOR_MAX)
             color = np.clip(base + variation, 0, 255)
-            flicker_color = tuple(color.astype(int))
-
-            floor_mask = self.game_map.tiles["walkable"] & self.game_map.tiles["transparent"]
-            self.game_map.tiles["light"]["bg"][floor_mask] = flicker_color
-            self._next_flicker_interval = random.uniform(self.TORCH_FLICKER_INTERVAL_MIN, self.TORCH_FLICKER_INTERVAL_MAX)
             self._last_flicker = now
+            self._next_flicker_interval = random.uniform(general.TORCH_FLICKER_INTERVAL_MIN,
+                                                         general.TORCH_FLICKER_INTERVAL_MAX)
+
+            self._update_floor_color(tuple(color.astype(int)))
+
+    def _update_floor_color(self, color: Tuple[int, int, int]) -> None:
+        floor_mask = self.game_map.tiles["walkable"] & self.game_map.tiles["transparent"]
+        self.game_map.tiles["light"]["bg"][floor_mask] = color
 
     def render(self, console: Console, context: Context) -> None:
-        self._flicker_torch()
+        if self.player.is_alive:
+            self._flicker_torch()
+        else:
+            self._update_floor_color((0, 0, 0))
+
+        console.print(
+            x=1,
+            y=general.HEIGHT - 2, # Bit of padding near the bottom
+            string=f"HP: {self.player.fighter.hp}/{self.player.fighter.max_hp}",
+        )
 
         self.game_map.render(console)
 

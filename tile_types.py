@@ -1,6 +1,6 @@
 from typing import Tuple
 
-import colors
+from constants import colors
 import numpy as np  # type: ignore
 
 # Tile graphics structured type compatible with Console.tiles_rgb.
@@ -37,11 +37,11 @@ SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
 
 floor = new_tile(
     walkable=True, transparent=True,
-    dark=(ord("░"), (30, 30, 50), (20, 20, 20)),
-    light=(ord("░"), (30, 30, 50), colors.TORCH_BASE_RGB)
+    dark=(ord("░"), colors.FLOOR_FG_RGB, colors.FLOOR_BG_RGB),
+    light=(ord("░"), colors.FLOOR_FG_RGB, colors.TORCH_BASE_RGB)
 )
 
-wall_color = dark=(ord("█"), (40, 40, 60), (80, 80, 80))
+wall_color = dark=(ord("█"), colors.WALL_FG_RGB, colors.WALL_BG_RGB)
 wall = new_tile(
     walkable=False, transparent=False,
     dark=wall_color, light=wall_color

@@ -6,30 +6,11 @@ import time
 import entity_factory
 
 from engine import Engine
-from entity import Entity
 from gen_map import generate_dungeon
-from input_handlers import EventHandler
-
-FPS = 30
-
-# Increasing the size values will "zoom out" on the content
-HUD_SIZE = 5
-# WIDTH, HEIGHT = 75, 40
-WIDTH, HEIGHT = 79, 48
-MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
-
-ROOM_MAX_SIZE = 10
-ROOM_MIN_SIZE = 6
-MAX_ROOMS = 50
-MAX_MONSTERS_PER_ROOM = 2
-
-# TODO Start fullscreen (for now just maximized as it's easier to debug)
-FLAGS = tcod.context.SDL_WINDOW_RESIZABLE | tcod.context.SDL_WINDOW_MAXIMIZED #| tcod.context.SDL_WINDOW_FULLSCREEN
+from constants import general
 
 # Can play with SDL rendering quality
 # os.environ["SDL_RENDER_SCALE_QUALITY"] = "best"
-
-event_handler = EventHandler()
 
 def main() -> None:
     # TODO Decide on a font/tileset, and likely allow customization
@@ -43,23 +24,23 @@ def main() -> None:
     # tileset = tcod.tileset.load_tilesheet("assets/Teeto_K_18x18.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
     player = copy.deepcopy(entity_factory.player)
+    engine = Engine(player=player)
 
-    game_map = generate_dungeon(
-        max_rooms=MAX_ROOMS,
-        room_min_size=ROOM_MIN_SIZE,
-        room_max_size=ROOM_MAX_SIZE,
-        map_width=MAP_WIDTH,
-        map_height=MAP_HEIGHT,
-        max_monsters_per_room=MAX_MONSTERS_PER_ROOM,
-        player=player
+    engine.game_map = generate_dungeon(
+        max_rooms=general.MAX_ROOMS,
+        room_min_size=general.ROOM_MIN_SIZE,
+        room_max_size=general.ROOM_MAX_SIZE,
+        map_width=general.MAP_WIDTH,
+        map_height=general.MAP_HEIGHT,
+        max_monsters_per_room=general.MAX_MONSTERS_PER_ROOM,
+        engine=engine
     )
-
-    engine = Engine(event_handler, game_map, player)
+    engine.update_fov()
 
     with tcod.context.new(
-        columns=WIDTH,
-        rows=HEIGHT,
-        sdl_window_flags=FLAGS,
+        columns=general.WIDTH,
+        rows=general.HEIGHT,
+        sdl_window_flags=general.SDL_FLAGS,
         tileset=tileset,
         title="Into the Dark",
         vsync=True,
@@ -68,16 +49,14 @@ def main() -> None:
         # rec_width, rec_height = context.recommended_console_size()
         # root_console = tcod.console.Console(rec_width+1, rec_height, order="F")
 
-        root_console = tcod.console.Console(WIDTH, HEIGHT, order="F")
-        frame_duration = 1 / FPS
+        root_console = tcod.console.Console(general.WIDTH, general.HEIGHT, order="F")
+        frame_duration = 1 / general.FPS
         last_frame = time.time()
 
         while True:
             now = time.time()
 
-            events = list(tcod.event.get())
-            if events:
-                engine.handle_events(events)
+            engine.event_handler.handle_events(tcod.event.get())
 
             if now - last_frame >= frame_duration:
                 last_frame = now
