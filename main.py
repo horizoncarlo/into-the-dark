@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import random
 
+import copy
 import tcod
 import time
+import entity_factory
 
 from engine import Engine
 from entity import Entity
@@ -20,10 +21,7 @@ MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
 ROOM_MAX_SIZE = 10
 ROOM_MIN_SIZE = 6
 MAX_ROOMS = 50
-
-# Legal requirement
-GOLDENROD_RGB = [218, 165, 32]
-CORNFLOWER_RGB = [100, 149, 237]
+MAX_MONSTERS_PER_ROOM = 2
 
 # TODO Start fullscreen (for now just maximized as it's easier to debug)
 FLAGS = tcod.context.SDL_WINDOW_RESIZABLE | tcod.context.SDL_WINDOW_MAXIMIZED #| tcod.context.SDL_WINDOW_FULLSCREEN
@@ -44,9 +42,7 @@ def main() -> None:
     # tileset = tcod.tileset.load_tilesheet("assets/Runeset_24x24.png", 16, 16, tcod.tileset.CHARMAP_CP437)
     # tileset = tcod.tileset.load_tilesheet("assets/Teeto_K_18x18.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
-    player = Entity(int(WIDTH / 2), int(HEIGHT / 2), "☺", GOLDENROD_RGB, light_radius=4)
-    npc = Entity(int(WIDTH / 2 - 5), int(HEIGHT / 2), "☻", CORNFLOWER_RGB)
-    entities = {npc, player}
+    player = copy.deepcopy(entity_factory.player)
 
     game_map = generate_dungeon(
         max_rooms=MAX_ROOMS,
@@ -54,10 +50,11 @@ def main() -> None:
         room_max_size=ROOM_MAX_SIZE,
         map_width=MAP_WIDTH,
         map_height=MAP_HEIGHT,
+        max_monsters_per_room=MAX_MONSTERS_PER_ROOM,
         player=player
     )
 
-    engine = Engine(entities, event_handler, game_map, player)
+    engine = Engine(event_handler, game_map, player)
 
     with tcod.context.new(
         columns=WIDTH,

@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -7,7 +5,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
-
 
 class Action:
     def perform(self, engine: Engine, entity: Entity) -> None:
@@ -21,31 +18,53 @@ class Action:
         """
         raise NotImplementedError()
 
-
 class EscapeAction(Action):
     def perform(self, engine: Engine, entity: Entity) -> None:
         raise SystemExit()
 
+class ActionWithDirection(Action):
+    def __init__(self, dx: int, dy: int):
+        super().__init__()
+        self.dx = dx
+        self.dy = dy
 
-class MovementAction(Action):
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        raise NotImplementedError()
+
+class MeleeAction(ActionWithDirection):
+   def perform(self, engine: Engine, entity: Entity) -> None:
+       dest_x = entity.x + self.dx
+       dest_y = entity.y + self.dy
+       target = engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
+       if not target:
+           return  # No entity to attack
+       print(f"You kick the {target.name}, much to its annoyance!")
+
+class MovementAction(ActionWithDirection):
     # Example from tcod docs on diagonal movement: https://python-tcod.readthedocs.io/en/latest/tcod/event.html#tcod.event.get_keyboard_state
     # x = int(state[tcod.event.Scancode.D]) - int(state[tcod.event.Scancode.A])
     # y = int(state[tcod.event.Scancode.S]) - int(state[tcod.event.Scancode.W])
     # print(f"X AND Y on movement {x} and {y}")
-
-    def __init__(self, dx: int, dy: int):
-        super().__init__()
-
-        self.dx = dx
-        self.dy = dy
 
     def perform(self, engine: Engine, entity: Entity) -> None:
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
 
         if not engine.game_map.in_bounds(dest_x, dest_y):
-            return  # Destination is out of bounds.
+            return # Destination is out of bounds
         if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return  # Destination is blocked by a tile.
+            return # Destination is blocked by a tile
+        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            return # Destination is blocked by an entity
 
         entity.move(self.dx, self.dy)
+
+class BumpAction(ActionWithDirection):
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        dest_x = entity.x + self.dx
+        dest_y = entity.y + self.dy
+
+        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            return MeleeAction(self.dx, self.dy).perform(engine, entity)
+        else:
+            return MovementAction(self.dx, self.dy).perform(engine, entity)
