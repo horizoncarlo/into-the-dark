@@ -12,12 +12,15 @@ from constants import colors, general
 # Can play with SDL rendering quality
 # os.environ["SDL_RENDER_SCALE_QUALITY"] = "best"
 
+
 def main() -> None:
     # TODO Decide on a font/tileset, and likely allow customization
     # tileset = tcod.tileset.load_tilesheet("assets/dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD)
     # tileset = tcod.tileset.load_truetype_font("assets/cp437-12x24.ttf", 12, 24)
     # tileset = tcod.tileset.load_truetype_font("assets/dungeon-mode.ttf", 16, 16)
-    tileset = tcod.tileset.load_tilesheet("assets/Zesty_curses_24x24.png", 16, 16, tcod.tileset.CHARMAP_CP437)
+    tileset = tcod.tileset.load_tilesheet(
+        "assets/Zesty_curses_24x24.png", 16, 16, tcod.tileset.CHARMAP_CP437
+    )
     # tileset = tcod.tileset.load_tilesheet("assets/Tahin_16x16_rounded.png", 16, 16, tcod.tileset.CHARMAP_CP437)
     # tileset = tcod.tileset.load_tilesheet("assets/Nagidal24x24shade.png", 16, 16, tcod.tileset.CHARMAP_CP437)
     # tileset = tcod.tileset.load_tilesheet("assets/Runeset_24x24.png", 16, 16, tcod.tileset.CHARMAP_CP437)
@@ -33,12 +36,13 @@ def main() -> None:
         map_width=general.MAP_WIDTH,
         map_height=general.MAP_HEIGHT,
         max_monsters_per_room=general.MAX_MONSTERS_PER_ROOM,
-        engine=engine
+        engine=engine,
     )
     engine.update_fov()
 
     engine.message_log.add_message(
-        "Hello and welcome, adventurer, to yet another dungeon!", colors.welcome_text # TTODO Intro message
+        "Hello and welcome, adventurer, to yet another dungeon!",
+        colors.welcome_text,  # TTODO Intro message
     )
 
     with tcod.context.new(
@@ -80,6 +84,7 @@ def main() -> None:
         #     # console = context.new_console(magnification=2)
         #     # console.print(x=1, y=10, string="@")
         #     # context.present(console, keep_aspect=True, integer_scaling=True)
+
 
 if __name__ == "__main__":
     main()

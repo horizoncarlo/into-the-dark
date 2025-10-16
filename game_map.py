@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
 
+
 class GameMap:
     def __init__(
         self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = ()
@@ -22,10 +23,10 @@ class GameMap:
 
         self.visible = np.full(
             (width, height), fill_value=False, order="F"
-        ) # Tiles the player can currently see
+        )  # Tiles the player can currently see
         self.explored = np.full(
             (width, height), fill_value=False, order="F"
-        ) # Tiles the player has seen before
+        )  # Tiles the player has seen before
 
     @property
     def actors(self) -> Iterator[Actor]:
@@ -37,13 +38,15 @@ class GameMap:
         )
 
     def get_blocking_entity_at_location(
-        self, location_x: int, location_y: int,
+        self,
+        location_x: int,
+        location_y: int,
     ) -> Optional[Entity]:
         for entity in self.entities:
             if (
-                    entity.blocks_movement
-                    and entity.x == location_x
-                    and entity.y == location_y
+                entity.blocks_movement
+                and entity.x == location_x
+                and entity.y == location_y
             ):
                 return entity
         return None
@@ -70,7 +73,7 @@ class GameMap:
         console.rgb[0 : self.width, 0 : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=general.FOG_OF_WAR
+            default=general.FOG_OF_WAR,
         )
 
         entities_sorted_for_rendering = sorted(
@@ -78,9 +81,12 @@ class GameMap:
         )
 
         for entity in entities_sorted_for_rendering:
-           # Only print entities that are in the FOV
-           if self.visible[entity.x, entity.y]:
-               console.print(
-                   x=entity.x, y=entity.y, string=entity.char, fg=entity.fg_color, bg=entity.bg_color
-               )
-
+            # Only print entities that are in the FOV
+            if self.visible[entity.x, entity.y]:
+                console.print(
+                    x=entity.x,
+                    y=entity.y,
+                    string=entity.char,
+                    fg=entity.fg_color,
+                    bg=entity.bg_color,
+                )

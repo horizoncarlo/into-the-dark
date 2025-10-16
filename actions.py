@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity
 
+
 class Action:
     def __init__(self, entity: Actor) -> None:
         super().__init__()
@@ -29,13 +30,16 @@ class Action:
         """
         raise NotImplementedError()
 
+
 class EscapeAction(Action):
     def perform(self) -> None:
         raise SystemExit()
 
+
 class WaitAction(Action):
     def perform(self) -> None:
         pass
+
 
 class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dx: int, dy: int):
@@ -61,25 +65,29 @@ class ActionWithDirection(Action):
     def perform(self) -> None:
         raise NotImplementedError()
 
+
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
-       target = self.target_actor
-       if not target:
-           return  # No entity to attack
+        target = self.target_actor
+        if not target:
+            return  # No entity to attack
 
-       damage = self.entity.fighter.power - target.fighter.defense
-       attack_color = colors.player_atk if self.entity is self.engine.player else colors.enemy_atk
-       attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        damage = self.entity.fighter.power - target.fighter.defense
+        attack_color = (
+            colors.player_atk if self.entity is self.engine.player else colors.enemy_atk
+        )
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
 
-       if damage > 0:
-           self.engine.message_log.add_message(
-               f"{attack_desc} for {damage} hit points", attack_color
-           )
-           target.fighter.hp -= damage
-       else:
-           self.engine.message_log.add_message(
-               f"{attack_desc} but does no damage", attack_color
-           )
+        if damage > 0:
+            self.engine.message_log.add_message(
+                f"{attack_desc} for {damage} hit points", attack_color
+            )
+            target.fighter.hp -= damage
+        else:
+            self.engine.message_log.add_message(
+                f"{attack_desc} but does no damage", attack_color
+            )
+
 
 class MovementAction(ActionWithDirection):
     # Example from tcod docs on diagonal movement: https://python-tcod.readthedocs.io/en/latest/tcod/event.html#tcod.event.get_keyboard_state
@@ -91,13 +99,14 @@ class MovementAction(ActionWithDirection):
         dest_x, dest_y = self.dest_xy
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            return # Destination is out of bounds
+            return  # Destination is out of bounds
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return # Destination is blocked by a tile
+            return  # Destination is blocked by a tile
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            return # Destination is blocked by an entity
+            return  # Destination is blocked by an entity
 
         self.entity.move(self.dx, self.dy)
+
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:

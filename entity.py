@@ -12,12 +12,14 @@ if TYPE_CHECKING:
 
 T = TypeVar("T", bound="Entity")
 
+
 class Entity:
     game_map: GameMap
 
     """
     A generic object to represent players, enemies, items, etc.
     """
+
     def __init__(
         self,
         game_map: Optional[GameMap] = None,
@@ -29,7 +31,7 @@ class Entity:
         name: str = "<Unnamed>",
         light_radius: int = 8,
         blocks_movement: bool = False,
-        render_order: RenderOrder = RenderOrder.CORPSE
+        render_order: RenderOrder = RenderOrder.CORPSE,
     ):
         self.x = x
         self.y = y
@@ -69,6 +71,7 @@ class Entity:
         self.x += dx
         self.y += dy
 
+
 class Actor(Entity):
     def __init__(
         self,
@@ -92,7 +95,7 @@ class Actor(Entity):
             name=name,
             light_radius=light_radius,
             blocks_movement=True,
-            render_order=RenderOrder.ACTOR
+            render_order=RenderOrder.ACTOR,
         )
 
         self.ai: Optional[BaseAI] = ai_cls(self)

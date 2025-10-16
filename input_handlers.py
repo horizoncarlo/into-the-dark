@@ -26,7 +26,7 @@ MOVE_KEYS = {
     tcod.event.KeySym.KP_6: (1, 0),
     tcod.event.KeySym.KP_7: (-1, -1),
     tcod.event.KeySym.KP_8: (0, -1),
-    tcod.event.KeySym.KP_9: (1, -1)
+    tcod.event.KeySym.KP_9: (1, -1),
 }
 
 WAIT_KEYS = {
@@ -35,9 +35,8 @@ WAIT_KEYS = {
     tcod.event.KeySym.CLEAR,
 }
 
-ESCAPE_KEYS = {
-    tcod.event.KeySym.ESCAPE
-}
+ESCAPE_KEYS = {tcod.event.KeySym.ESCAPE}
+
 
 class EventHandler(tcod.event.EventDispatch[Action]):
     def __init__(self, engine: Engine):
@@ -48,6 +47,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
+
 
 class MainGameEventHandler(EventHandler):
     def handle_events(self, events) -> None:
@@ -80,6 +80,7 @@ class MainGameEventHandler(EventHandler):
 
         # No valid key was pressed
         return action
+
 
 class GameOverEventHandler(EventHandler):
     def handle_events(self, events) -> None:

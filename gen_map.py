@@ -12,8 +12,9 @@ from game_map import GameMap
 if TYPE_CHECKING:
     from engine import Engine
 
+
 class RectangularRoom:
-    def __init__(self, x:int, y: int, width: int, height: int):
+    def __init__(self, x: int, y: int, width: int, height: int):
         self.x1 = x
         self.y1 = y
         self.x2 = x + width
@@ -39,6 +40,7 @@ class RectangularRoom:
             and self.y1 <= other.y2
             and self.y2 >= other.y1
         )
+
 
 def generate_dungeon(
     max_rooms: int,
@@ -88,6 +90,7 @@ def generate_dungeon(
 
     return dungeon
 
+
 def place_entities(
     room: RectangularRoom, dungeon: GameMap, maximum_monsters: int
 ) -> None:
@@ -102,6 +105,7 @@ def place_entities(
                 entity_factory.orc.spawn(dungeon, x, y)
             else:
                 entity_factory.troll.spawn(dungeon, x, y)
+
 
 def tunnel_between(
     start: Tuple[int, int], end: Tuple[int, int]

@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from game_map import GameMap
     from input_handlers import EventHandler
 
+
 class Engine:
     game_map: GameMap
 
@@ -45,7 +46,7 @@ class Engine:
             radius=self.player.light_radius,
             # TODO See the really good article on the FOV options:
             # https://www.roguebasin.com/index.php?title=Comparative_study_of_field_of_view_algorithms_for_2D_grid_based_worlds
-            algorithm=tcod.constants.FOV_PERMISSIVE_1
+            algorithm=tcod.constants.FOV_PERMISSIVE_1,
         )
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
@@ -54,16 +55,21 @@ class Engine:
         now = time.time()
         if now - self._last_flicker >= self._next_flicker_interval:
             base = np.array(colors.TORCH_BASE_RGB)
-            variation = random.randint(general.TORCH_FLICKER_COLOR_MIN, general.TORCH_FLICKER_COLOR_MAX)
+            variation = random.randint(
+                general.TORCH_FLICKER_COLOR_MIN, general.TORCH_FLICKER_COLOR_MAX
+            )
             color = np.clip(base + variation, 0, 255)
             self._last_flicker = now
-            self._next_flicker_interval = random.uniform(general.TORCH_FLICKER_INTERVAL_MIN,
-                                                         general.TORCH_FLICKER_INTERVAL_MAX)
+            self._next_flicker_interval = random.uniform(
+                general.TORCH_FLICKER_INTERVAL_MIN, general.TORCH_FLICKER_INTERVAL_MAX
+            )
 
             self._update_floor_color(tuple(color.astype(int)))
 
     def _update_floor_color(self, color: Tuple[int, int, int]) -> None:
-        floor_mask = self.game_map.tiles["walkable"] & self.game_map.tiles["transparent"]
+        floor_mask = (
+            self.game_map.tiles["walkable"] & self.game_map.tiles["transparent"]
+        )
         self.game_map.tiles["light"]["bg"][floor_mask] = color
 
     def render(self, console: Console, context: Context) -> None:
@@ -81,8 +87,15 @@ class Engine:
 
         self.game_map.render(console)
 
-        self.message_log.render(console=console, x=21, y=44, width=40, height=4) # TTODO Constants for the message log
+        self.message_log.render(
+            console=console, x=21, y=44, width=40, height=4
+        )  # TTODO Constants for the message log
 
-        context.present(console, keep_aspect=True, integer_scaling=True, clear_color=colors.MAP_BORDER_COLOR)
+        context.present(
+            console,
+            keep_aspect=True,
+            integer_scaling=True,
+            clear_color=colors.MAP_BORDER_COLOR,
+        )
 
         console.clear()
