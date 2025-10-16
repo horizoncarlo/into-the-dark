@@ -15,7 +15,7 @@ from message_log import MessageLog
 import time
 import random
 
-from render_functions import render_bar
+from render_functions import render_hp_bar, render_names_at_mouse_location
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -29,14 +29,14 @@ class Engine:
     def __init__(self, player: Actor):
         self.event_handler: EventHandler = MainGameEventHandler(self)
         self.message_log: MessageLog = MessageLog()
+        self.mouse_location = (0, 0)
         self.player = player
         self._last_flicker = time.time()
         self._next_flicker_interval = 1
 
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
-            if entity.ai:
-                entity.ai.perform()
+            getattr(entity, "ai", None) and entity.ai.perform()
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view"""
@@ -78,18 +78,28 @@ class Engine:
         else:
             self._update_floor_color((0, 0, 0))
 
-        render_bar(
+        render_hp_bar(
             console=console,
             current_value=self.player.fighter.hp,
             maximum_value=self.player.fighter.max_hp,
-            total_width=15,
+        )
+
+        render_names_at_mouse_location(
+            console=console,
+            engine=self,
+            x=general.MESSAGE_LOG_X,
+            y=general.MESSAGE_LOG_Y - 1,  # Place "look" details one above message log
+        )
+
+        self.message_log.render(
+            console=console,
+            x=general.MESSAGE_LOG_X,
+            y=general.MESSAGE_LOG_Y,
+            width=general.MESSAGE_LOG_WIDTH,
+            height=general.MESSAGE_LOG_HEIGHT,
         )
 
         self.game_map.render(console)
-
-        self.message_log.render(
-            console=console, x=21, y=44, width=40, height=4
-        )  # TTODO Constants for the message log
 
         context.present(
             console,

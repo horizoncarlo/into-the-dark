@@ -1,9 +1,9 @@
 import random
 
-GOLDENROD_RGB = [218, 165, 32]
-CORNFLOWER_RGB = [100, 149, 237]
+GOLDENROD_RGB = (218, 165, 32)
+CORNFLOWER_RGB = (100, 149, 237)
 
-MAP_BORDER_COLOR = [random.randint(0, 50), random.randint(0, 50), random.randint(0, 50)]
+MAP_BORDER_COLOR = (random.randint(0, 50), random.randint(0, 50), random.randint(0, 50))
 
 FLOOR_FG_RGB = (30, 30, 50)
 FLOOR_BG_RGB = (20, 20, 20)
@@ -14,17 +14,19 @@ TORCH_BASE_RGB = (150, 130, 0)
 DEAD_BLOOD_FG_RGB = (190, 0, 0)
 DEAD_BLOOD_BG_RGB = None
 
-white = (0xFF, 0xFF, 0xFF)
-black = (0x0, 0x0, 0x0)
+white = (255, 255, 255)
+black = (0, 0, 0)
 
-player_atk = (0xE0, 0xE0, 0xE0)
-enemy_atk = (0xFF, 0xC0, 0xC0)
+player_atk = (224, 224, 224)
+enemy_atk = (255, 192, 192)
 
-player_die = (0xFF, 0x30, 0x30)
-enemy_die = (0xFF, 0xA0, 0x30)
+player_die = (255, 48, 48)
+enemy_die = (255, 160, 48)
 
-welcome_text = (0x20, 0xA0, 0xFF)
+view_bg = (186, 85, 211)
+view_fg = view_bg
+welcome_text = (32, 160, 255)
 
 bar_text = white
-bar_filled = (0x0, 0x60, 0x0)
-bar_empty = (0x40, 0x10, 0x10)
+bar_filled = (0, 96, 0)
+bar_empty = (64, 16, 16)

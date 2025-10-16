@@ -37,6 +37,12 @@ class GameMap:
             if isinstance(entity, Actor) and entity.is_alive
         )
 
+    def get_entity_at_location(self, x: int, y: int) -> Optional[Entity]:
+        for entity in self.entities:
+            if entity.x == x and entity.y == y:
+                return entity
+        return None
+
     def get_blocking_entity_at_location(
         self,
         location_x: int,
@@ -55,7 +61,6 @@ class GameMap:
         for actor in self.actors:
             if actor.x == x and actor.y == y:
                 return actor
-
         return None
 
     def in_bounds(self, x: int, y: int) -> bool:

@@ -3,6 +3,7 @@
 import copy
 import tcod
 import time
+import random
 import entity_factory
 
 from engine import Engine
@@ -41,8 +42,8 @@ def main() -> None:
     engine.update_fov()
 
     engine.message_log.add_message(
-        "Hello and welcome, adventurer, to yet another dungeon!",
-        colors.welcome_text,  # TTODO Intro message
+        random.choice(general.WELCOME_MESSAGES),
+        colors.welcome_text,
     )
 
     with tcod.context.new(
@@ -60,30 +61,49 @@ def main() -> None:
         root_console = tcod.console.Console(general.WIDTH, general.HEIGHT, order="F")
         frame_duration = 1 / general.FPS
         last_frame = time.time()
+        is_paused = False
 
         while True:
             now = time.time()
 
-            engine.event_handler.handle_events(tcod.event.get())
+            # Render loop MIGHT not be the cleanest, but hey it's our first try
+            # Idea is we loop at FPS speed to get a reliable torch flicker and still accept user input
+            # Then if we have a paused screen, such as opening HistoryViewer, then we stop redrawing until done
+            if not is_paused:
+                if now - last_frame >= frame_duration:
+                    last_frame = now
+                    engine.event_handler.on_render(root_console, context)
 
-            if now - last_frame >= frame_duration:
-                last_frame = now
-                engine.render(root_console, context)
+                time.sleep(max(0, frame_duration - (time.time() - now)))
 
-            time.sleep(max(0, frame_duration - (time.time() - now)))
+                try:
+                    engine.event_handler.handle_events(context, tcod.event.get())
+                except StopIteration:
+                    is_paused = True
+            else:
+                # At this point we have HistoryViewer (or another "blocking" task via StopIteration exception)
+                # So we render that and instead of .get we pause the loop with .wait
+                # If we get ANOTHER StopIteration that means revert to our previous state
+                try:
+                    engine.event_handler.on_render(
+                        console=root_console, context=context
+                    )
+                    engine.event_handler.handle_events(
+                        context=context, events=tcod.event.wait()
+                    )
+                except StopIteration:
+                    is_paused = False
 
-        # Original tutorial code, replaced when we wanted to mess around with torch flickering (done in engine)
+        # # Original tutorial code, replaced when we wanted to mess around with torch flickering (done in engine)
         # while True:
-        #     engine.render(root_console, context)
-        #
-        #     events = tcod.event.wait()
-        #
-        #     engine.handle_events(events)
-        #
-        #     # Alternative approach from TCOD doc tutorial, nice part is the magnification
-        #     # console = context.new_console(magnification=2)
-        #     # console.print(x=1, y=10, string="@")
-        #     # context.present(console, keep_aspect=True, integer_scaling=True)
+        #     root_console.clear()
+        #     engine.event_handler.on_render(console=root_console, context=context)
+        #     context.present(root_console)
+        #     engine.event_handler.handle_events(context=context, events=tcod.event.wait())
+        # # Alternative approach from TCOD doc tutorial, nice part is the magnification
+        # # console = context.new_console(magnification=2)
+        # # console.print(x=1, y=10, string="@")
+        # # context.present(console, keep_aspect=True, integer_scaling=True)
 
 
 if __name__ == "__main__":
