@@ -5,6 +5,7 @@ FPS = 30
 
 # Increasing the size values will "zoom out" on the content
 WIDTH, HEIGHT = 79, 48 # Manually done for 1080p
+HEIGHT_HP_BAR = HEIGHT - 2
 HUD_SIZE = 5
 MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
 

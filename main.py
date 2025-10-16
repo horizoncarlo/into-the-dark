@@ -7,7 +7,7 @@ import entity_factory
 
 from engine import Engine
 from gen_map import generate_dungeon
-from constants import general
+from constants import colors, general
 
 # Can play with SDL rendering quality
 # os.environ["SDL_RENDER_SCALE_QUALITY"] = "best"
@@ -36,6 +36,10 @@ def main() -> None:
         engine=engine
     )
     engine.update_fov()
+
+    engine.message_log.add_message(
+        "Hello and welcome, adventurer, to yet another dungeon!", colors.welcome_text # TTODO Intro message
+    )
 
     with tcod.context.new(
         columns=general.WIDTH,

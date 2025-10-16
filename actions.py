@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 
+from constants import colors
+
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity
@@ -66,13 +68,18 @@ class MeleeAction(ActionWithDirection):
            return  # No entity to attack
 
        damage = self.entity.fighter.power - target.fighter.defense
-
+       attack_color = colors.player_atk if self.entity is self.engine.player else colors.enemy_atk
        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+
        if damage > 0:
-           print(f"{attack_desc} for {damage} hit points.")
+           self.engine.message_log.add_message(
+               f"{attack_desc} for {damage} hit points", attack_color
+           )
            target.fighter.hp -= damage
        else:
-           print(f"{attack_desc} but does no damage.")
+           self.engine.message_log.add_message(
+               f"{attack_desc} but does no damage", attack_color
+           )
 
 class MovementAction(ActionWithDirection):
     # Example from tcod docs on diagonal movement: https://python-tcod.readthedocs.io/en/latest/tcod/event.html#tcod.event.get_keyboard_state

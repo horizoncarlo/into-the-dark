@@ -10,9 +10,12 @@ from tcod.map import compute_fov
 
 from constants import colors, general
 from input_handlers import MainGameEventHandler
+from message_log import MessageLog
 
 import time
 import random
+
+from render_functions import render_bar
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -24,6 +27,7 @@ class Engine:
 
     def __init__(self, player: Actor):
         self.event_handler: EventHandler = MainGameEventHandler(self)
+        self.message_log: MessageLog = MessageLog()
         self.player = player
         self._last_flicker = time.time()
         self._next_flicker_interval = 1
@@ -68,13 +72,16 @@ class Engine:
         else:
             self._update_floor_color((0, 0, 0))
 
-        console.print(
-            x=1,
-            y=general.HEIGHT - 2, # Bit of padding near the bottom
-            string=f"HP: {self.player.fighter.hp}/{self.player.fighter.max_hp}",
+        render_bar(
+            console=console,
+            current_value=self.player.fighter.hp,
+            maximum_value=self.player.fighter.max_hp,
+            total_width=15,
         )
 
         self.game_map.render(console)
+
+        self.message_log.render(console=console, x=21, y=44, width=40, height=4) # TTODO Constants for the message log
 
         context.present(console, keep_aspect=True, integer_scaling=True, clear_color=colors.MAP_BORDER_COLOR)
 
