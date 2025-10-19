@@ -1,8 +1,10 @@
 from constants import colors
 
 from components.ai import HostileEnemy
+from components.consumable import HealingConsumable
 from components.fighter import Fighter
-from entity import Actor, Entity
+from components.inventory import Inventory
+from entity import Actor, Entity, Item
 from render_order import RenderOrder
 
 stairs_up = Entity(
@@ -22,6 +24,17 @@ player = Actor(
     ai_cls=HostileEnemy,
     light_radius=4,
     fighter=Fighter(hp=30, defense=2, power=5),
+    inventory=Inventory(
+        capacity=26
+    ),  # Capacity is the length of the alphabet for the inventory window
+)
+
+# Items
+healing_potion = Item(
+    char="!",
+    fg_color=(127, 0, 255),
+    name="Healing Potion",
+    consumable=HealingConsumable(amount=4),
 )
 
 # Monsters

@@ -8,6 +8,7 @@ from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
+import exceptions
 from constants import colors, general
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
@@ -36,7 +37,10 @@ class Engine:
 
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
-            getattr(entity, "ai", None) and entity.ai.perform()
+            try:
+                getattr(entity, "ai", None) and entity.ai.perform()
+            except exceptions.ImpossibleAction:
+                pass  # AI can get away with annnnything these days! So ignore it
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view"""

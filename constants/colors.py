@@ -25,6 +25,12 @@ enemy_die = (255, 160, 48)
 
 view_bg = (186, 85, 211)
 view_fg = view_bg
+
+invalid = (255, 255, 0)
+impossible = (128, 128, 128)
+error = (255, 64, 64)
+
+hp_recovered = (0, 255, 0)
 welcome_text = (32, 160, 255)
 
 bar_text = white

@@ -19,6 +19,7 @@ ROOM_MAX_SIZE = 10
 ROOM_MIN_SIZE = 6
 MAX_ROOMS = 50
 MAX_MONSTERS_PER_ROOM = 2
+MAX_ITEMS_PER_ROOM = 2
 
 # TODO Start fullscreen (for now just maximized as it's easier to debug)
 SDL_FLAGS = (
