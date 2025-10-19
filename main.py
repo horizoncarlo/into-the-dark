@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
 import copy
-import traceback
+import random
 
 import tcod
-import time
-import random
-import entity_factory
 
+import entity_factory
+from constants import colors, general
 from engine import Engine
 from exceptions import StopRendering, StartRendering, ImpossibleAction
 from gen_map import generate_dungeon
-from constants import colors, general
+
 
 # Can play with SDL rendering quality
 # os.environ["SDL_RENDER_SCALE_QUALITY"] = "best"

@@ -35,6 +35,13 @@ healing_potion = Item(
     name="Healing Potion",
     consumable=consumable.HealingConsumable(amount=4),
 )
+babel_scroll = Item(
+    char="?",
+    fg_color=(217, 48, 200),
+    bg_color=(255, 255, 255),
+    name="Babel Scroll",
+    consumable=consumable.BabelConsumable(number_of_turns=10),
+)
 sunbeam_scroll = Item(
     char="▼",
     fg_color=(204, 102, 0),
