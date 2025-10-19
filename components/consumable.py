@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 import actions
-from constants import colors
 import components.inventory
 from components.base_component import BaseComponent
+from constants import colors
 from exceptions import ImpossibleAction
 
 if TYPE_CHECKING:
@@ -50,3 +50,31 @@ class HealingConsumable(Consumable):
             self.consume()
         else:
             raise ImpossibleAction(f"Your HP is already full")
+
+
+class SunbeamConsumable(Consumable):
+    def __init__(self, damage: int, maximum_range: int):
+        self.damage = damage
+        self.maximum_range = maximum_range
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+        target = None
+        closest_distance = self.maximum_range + 1.0
+
+        for actor in self.engine.game_map.actors:
+            if actor is not consumer and self.parent.game_map.visible[actor.x, actor.y]:
+                distance = consumer.distance(actor.x, actor.y)
+
+                if distance < closest_distance:
+                    target = actor
+                    closest_distance = distance
+
+        if target:
+            self.engine.message_log.add_message(
+                f"Sunbeam blazes into {target.name}, glowing and pure, for {self.damage} damage!"
+            )
+            target.fighter.take_damage(self.damage)
+            self.consume()
+        else:
+            raise ImpossibleAction("No enemy is close enough to strike")

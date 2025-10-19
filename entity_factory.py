@@ -1,9 +1,8 @@
-from constants import colors
-
+from components import consumable
 from components.ai import HostileEnemy
-from components.consumable import HealingConsumable
 from components.fighter import Fighter
 from components.inventory import Inventory
+from constants import colors
 from entity import Actor, Entity, Item
 from render_order import RenderOrder
 
@@ -34,7 +33,14 @@ healing_potion = Item(
     char="!",
     fg_color=(127, 0, 255),
     name="Healing Potion",
-    consumable=HealingConsumable(amount=4),
+    consumable=consumable.HealingConsumable(amount=4),
+)
+sunbeam_scroll = Item(
+    char="▼",
+    fg_color=(204, 102, 0),
+    bg_color=(255, 255, 255),
+    name="Scroll of Sunbeam",
+    consumable=consumable.SunbeamConsumable(damage=20, maximum_range=5),
 )
 
 # Monsters

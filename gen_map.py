@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import tcod
 import random
+from typing import Iterator, List, Tuple, TYPE_CHECKING
+
+import tcod
 
 import entity_factory
 import tile_types
-
-from typing import Iterator, List, Tuple, TYPE_CHECKING
 from game_map import GameMap
 
 if TYPE_CHECKING:
@@ -114,7 +114,10 @@ def place_entities(
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            entity_factory.healing_potion.spawn(dungeon, x, y)
+            if random.random() < 0.7:
+                entity_factory.healing_potion.spawn(dungeon, x, y)
+            else:
+                entity_factory.sunbeam_scroll.spawn(dungeon, x, y)
 
 
 def tunnel_between(
