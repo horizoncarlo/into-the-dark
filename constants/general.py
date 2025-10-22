@@ -1,7 +1,9 @@
-import tcod
 import numpy as np  # type: ignore
+import tcod
 
 FPS = 30
+
+DEBUG_NO_FOG_OF_WAR = True
 
 WELCOME_MESSAGES = [
     "Torchlight flickers as the monastery doors close behind you",
@@ -15,10 +17,12 @@ WIDTH, HEIGHT = 79, 48  # Manually done for 1080p
 HUD_SIZE = 5
 MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
 
-ROOM_MAX_SIZE = 10
-ROOM_MIN_SIZE = 6
-MAX_ROOMS = 50
-MAX_MONSTERS_PER_ROOM = 2
+#  TODO Playing with the room count and size really changes the dungeon (...obviously)
+#  Realistically won't even be close on the room cap, since if a room intersects we skip it
+MAX_ROOMS = 200
+ROOM_MAX_SIZE = 9
+ROOM_MIN_SIZE = 4
+MAX_MONSTERS_PER_ROOM = 3
 MAX_ITEMS_PER_ROOM = 2
 
 # TODO Start fullscreen (for now just maximized as it's easier to debug)

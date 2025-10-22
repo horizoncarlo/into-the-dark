@@ -65,7 +65,16 @@ def main() -> None:
 
         while True:
             root_console.clear()
+
             engine.event_handler.on_render(console=root_console, context=context)
+
+            context.present(
+                root_console,
+                keep_aspect=True,
+                integer_scaling=True,
+                clear_color=colors.MAP_BORDER_COLOR,
+            )
+
             try:
                 engine.event_handler.handle_events(
                     context=context, events=tcod.event.wait()

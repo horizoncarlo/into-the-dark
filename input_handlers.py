@@ -8,7 +8,7 @@ import tcod.event
 import actions
 from actions import Action, BumpAction, EscapeAction, PickupAction, WaitAction
 from constants import colors
-from exceptions import StopRendering, StartRendering
+from exceptions import StartRendering, StopRendering
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -186,7 +186,7 @@ class InventoryEventHandler(AskUserEventHandler):
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them
         Will move to a different position based on where the player is located, so the player can always see where they are
         """
-        # super().on_render(console, context)
+        super().on_render(console, context)
         number_of_items_in_inventory = len(self.engine.player.inventory.items)
 
         height = number_of_items_in_inventory + 2
@@ -214,16 +214,14 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
+        self.engine.player.inventory.items.sort(key=lambda item: item.name)
+
         if number_of_items_in_inventory > 0:
             for i, item in enumerate(self.engine.player.inventory.items):
                 item_key = chr(ord("a") + i)
                 console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
         else:
             console.print(x + 1, y + 1, "(Empty)")
-
-        # TTODO Currently inventory takes up the whole screen because of our torch flickering loop - see Babel/Confusion scroll for example where this breaks
-        # Should do the .present in the main.py loop instead of in the engine.py render()?
-        context.present(console)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -277,6 +275,7 @@ class SelectIndexHandler(AskUserEventHandler):
         self, console: tcod.console.Console, context: tcod.context.Context
     ) -> None:
         """Highlight the tile under the cursor"""
+        super().on_render(console, context)
         x, y = self.engine.mouse_location
         console.rgb["bg"][x, y] = colors.white
         console.rgb["fg"][x, y] = colors.black
@@ -329,6 +328,8 @@ class SingleRangedAttackHandler(SelectIndexHandler):
         self.callback = callback
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        """Return to main handler"""
+        self.engine.event_handler = MainGameEventHandler(self.engine)
         return self.callback((x, y))
 
 
@@ -351,6 +352,7 @@ class HistoryViewer(EventHandler):
     def on_render(
         self, console: tcod.console.Console, context: tcod.context.Context
     ) -> None:
+        super().on_render(console, context)
         log_console = tcod.console.Console(console.width, console.height)
 
         # Draw a frame with a custom banner title
@@ -369,13 +371,11 @@ class HistoryViewer(EventHandler):
             log_console,
             1,
             1,
-            log_console.width - 2,
+            log_console.width,
             log_console.height - 2,
             self.engine.message_log.messages[: self.cursor + 1],
         )
-        context.present(log_console)
-        # TODO So far can't overlay the log due to our torch flickering loop
-        # log_console.blit(console, 3, 3)
+        log_console.blit(console, 0, 0)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         # Fancy conditional movement to make it feel right

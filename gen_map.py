@@ -70,7 +70,7 @@ def generate_dungeon(
 
         # Run through the other rooms and see if they intersect with this one
         if any(new_room.intersects(other_room) for other_room in rooms):
-            continue  # This room intersects, so go to the next attempt.
+            continue  # This room intersects, so go to the next attempt
         # If there are no intersections then the room is valid
 
         # Dig out this rooms inner area

@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
+
+import tile_types
 from constants import general
 from entity import Actor, Item
-import tile_types
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -86,7 +88,11 @@ class GameMap:
         console.rgb[0 : self.width, 0 : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=general.FOG_OF_WAR,
+            default=(
+                self.tiles["dark"]
+                if general.DEBUG_NO_FOG_OF_WAR
+                else general.FOG_OF_WAR
+            ),
         )
 
         entities_sorted_for_rendering = sorted(
