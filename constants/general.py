@@ -17,8 +17,8 @@ WIDTH, HEIGHT = 79, 48  # Manually done for 1080p
 HUD_SIZE = 5
 MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
 
-#  TODO Playing with the room count and size really changes the dungeon (...obviously)
-#  Realistically won't even be close on the room cap, since if a room intersects we skip it
+# TODO Playing with the room count and size really changes the dungeon (...obviously)
+# Realistically won't even be close on the room cap, since if a room intersects we skip it
 MAX_ROOMS = 200
 ROOM_MAX_SIZE = 9
 ROOM_MIN_SIZE = 4

@@ -118,7 +118,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.KeySym.I:
             self.engine.event_handler = InventoryActivateHandler(self.engine)
             raise StopRendering()
-        elif key == tcod.event.KeySym.D:
+        elif key == tcod.event.KeySym.P:  # P for Put Down
             self.engine.event_handler = InventoryDropHandler(self.engine)
             raise StopRendering()
         elif key == tcod.event.KeySym.SLASH:
@@ -255,7 +255,7 @@ class InventoryActivateHandler(InventoryEventHandler):
 class InventoryDropHandler(InventoryEventHandler):
     """Handle dropping an inventory item"""
 
-    TITLE = "Select an item to drop"
+    TITLE = "Select an item to put down"
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Drop this item"""
@@ -333,6 +333,72 @@ class SingleRangedAttackHandler(SelectIndexHandler):
         return self.callback((x, y))
 
 
+class CrossRangedAttackHandler(SelectIndexHandler):
+    """Handles targeting a cross shape. Any entity within the area will be affected"""
+
+    def __init__(
+        self,
+        engine: Engine,
+        char: str,
+        callback: Callable[[Tuple[int, int]], Optional[Action]],
+    ):
+        super().__init__(engine)
+
+        self.char = char
+        self.callback = callback
+
+    def on_render(
+        self, console: tcod.console.Console, context: tcod.context.Context
+    ) -> None:
+        """Highlight the tile under the cursor"""
+        super().on_render(console, context)
+        x, y = self.engine.mouse_location
+
+        # Convert our requested Unicode character to the int equivalent for use with our draw
+        unicode_char_int = ord(self.char)
+        console.draw_rect(  # Left cross
+            x=x - 2,
+            y=y,
+            width=2,
+            height=1,
+            fg=colors.red,
+            bg=colors.yellow,
+            ch=unicode_char_int,
+        )
+        console.draw_rect(  # Right cross
+            x=x + 1,
+            y=y,
+            width=2,
+            height=1,
+            fg=colors.red,
+            bg=colors.yellow,
+            ch=unicode_char_int,
+        )
+        console.draw_rect(  # Top cross
+            x=x,
+            y=y - 2,
+            width=1,
+            height=2,
+            fg=colors.red,
+            bg=colors.yellow,
+            ch=unicode_char_int,
+        )
+        console.draw_rect(  # Bottom cross
+            x=x,
+            y=y + 1,
+            width=1,
+            height=4,
+            fg=colors.red,
+            bg=colors.yellow,
+            ch=unicode_char_int,
+        )
+
+    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        """Return to main handler"""
+        self.engine.event_handler = MainGameEventHandler(self.engine)
+        return self.callback((x, y))
+
+
 class AreaRangedAttackHandler(SelectIndexHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected"""
 
@@ -354,7 +420,7 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         super().on_render(console, context)
         x, y = self.engine.mouse_location
 
-        # Draw a rectangle around the targeted area, so the player can see the affected tiles
+        # Draw a square around the targeted area, so the player can see the affected tiles
         console.draw_frame(
             x=x - self.radius - 1,
             y=y - self.radius - 1,

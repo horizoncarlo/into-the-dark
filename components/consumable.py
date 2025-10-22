@@ -8,7 +8,11 @@ import components.inventory
 from components.base_component import BaseComponent
 from constants import colors
 from exceptions import ImpossibleAction
-from input_handlers import SingleRangedAttackHandler, AreaRangedAttackHandler
+from input_handlers import (
+    SingleRangedAttackHandler,
+    CrossRangedAttackHandler,
+    AreaRangedAttackHandler,
+)
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -91,7 +95,7 @@ class BabelConsumable(Consumable):
         self.consume()
 
 
-class HolyBlastConsumable(Consumable):
+class ReckoningConsumable(Consumable):
     def __init__(self, damage: int, radius: int):
         self.damage = damage
         self.radius = radius
@@ -117,12 +121,65 @@ class HolyBlastConsumable(Consumable):
         for actor in self.engine.game_map.actors:
             if actor.distance(*target_xy) <= self.radius:
                 self.engine.message_log.add_message(
-                    f"The {actor.name} is engulfed in a blinding explosion, taking {self.damage} damage!"
+                    f"The {actor.name} is hammered by the inevitable, taking {self.damage} damage!",
+                    colors.light_orange,
                 )
                 actor.fighter.take_damage(self.damage)
                 targets_hit = True
 
         if not targets_hit:
+            raise ImpossibleAction("There are no targets in the radius")
+        self.consume()
+
+
+class HolyBlastConsumable(Consumable):
+    def __init__(self, char: str, damage: int):
+        self.char = char
+        self.damage = damage
+
+    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+        self.engine.message_log.add_message(
+            "Select a target location", colors.needs_target
+        )
+        self.engine.event_handler = CrossRangedAttackHandler(
+            self.engine,
+            char=self.char,
+            callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
+        )
+        return None
+
+    def activate(self, action: actions.ItemAction) -> None:
+        target_x, target_y = action.target_xy
+
+        if not self.engine.game_map.visible[target_x, target_y]:
+            raise ImpossibleAction("You cannot target an area that you cannot see")
+
+        player_hit = False
+        enemy_hit = False
+        for actor in self.engine.game_map.actors:
+            # Basically draw the cross shape around the target and check if we're in it
+            if (actor.x == target_x and target_y - 2 <= actor.y <= target_y + 3) or (
+                actor.y == target_y and target_x - 2 <= actor.x <= target_x + 2
+            ):
+                if self.engine.player is actor:
+                    player_hit = True
+                else:
+                    enemy_hit = True
+                    self.engine.message_log.add_message(
+                        f"The {actor.name} is purified by flame, taking {self.damage} damage!",
+                        colors.light_orange,
+                    )
+                    actor.fighter.take_damage(self.damage)
+
+        # Handle the player last to highlight the heals
+        if player_hit:
+            self.engine.message_log.add_message(
+                f"The {self.engine.player.name} is purified by flame, recovering {self.damage//2} HP!",
+                colors.hp_recovered,
+            )
+            self.engine.player.fighter.heal(self.damage // 2)
+
+        if not player_hit and not enemy_hit:
             raise ImpossibleAction("There are no targets in the radius")
         self.consume()
 
@@ -147,7 +204,8 @@ class SunbeamConsumable(Consumable):
 
         if target:
             self.engine.message_log.add_message(
-                f"Sunbeam blazes into {target.name}, glowing and pure, for {self.damage} damage!"
+                f"Sunbeam blazes into {target.name}, glowing and pure, for {self.damage} damage!",
+                colors.light_orange,
             )
             target.fighter.take_damage(self.damage)
             self.consume()

@@ -143,7 +143,7 @@ class MeleeAction(ActionWithDirection):
 
         if damage > 0:
             self.engine.message_log.add_message(
-                f"{attack_desc} for {damage} hit points", attack_color
+                f"{attack_desc} for {damage} damage", attack_color
             )
             target.fighter.hp -= damage
         else:

@@ -120,8 +120,9 @@ def place_entities(
             else:
                 scroll = random.choice(
                     [
-                        entity_factory.holy_blast_scroll,
                         entity_factory.babel_scroll,
+                        entity_factory.reckoning_scroll,
+                        entity_factory.holy_blast_scroll,
                         entity_factory.sunbeam_scroll,
                     ]
                 )

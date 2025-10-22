@@ -17,11 +17,13 @@ DEAD_BLOOD_BG_RGB = None
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
+yellow = (255, 255, 0)
+light_orange = (255, 213, 128)
 
-player_atk = (224, 224, 224)
+player_atk = (200, 200, 230)
 enemy_atk = (255, 192, 192)
 needs_target = (63, 255, 255)
-status_effect_applied = (63, 255, 63)
+status_effect_applied = (63, 180, 63)
 
 player_die = (255, 48, 48)
 enemy_die = (255, 160, 48)

@@ -38,21 +38,28 @@ healing_potion = Item(
 babel_scroll = Item(
     char="?",
     fg_color=(217, 48, 200),
-    bg_color=(255, 255, 255),
+    bg_color=colors.white,
     name="Scroll - Babel",
     consumable=consumable.BabelConsumable(number_of_turns=10),
 )
-holy_blast_scroll = Item(
+reckoning_scroll = Item(
     char="☼",
-    fg_color=(200, 0, 0),
-    bg_color=(255, 255, 255),
+    fg_color=colors.red,
+    bg_color=colors.white,
+    name="Scroll - Reckoning",
+    consumable=consumable.ReckoningConsumable(damage=12, radius=3),
+)
+holy_blast_scroll = Item(
+    char="┼",
+    fg_color=(200, 200, 0),
+    bg_color=colors.white,
     name="Scroll - Holy Blast",
-    consumable=consumable.HolyBlastConsumable(damage=12, radius=3),
+    consumable=consumable.HolyBlastConsumable(char="┼", damage=15),
 )
 sunbeam_scroll = Item(
     char="▼",
     fg_color=(204, 102, 0),
-    bg_color=(255, 255, 255),
+    bg_color=colors.white,
     name="Scroll - Sunbeam",
     consumable=consumable.SunbeamConsumable(damage=20, maximum_range=5),
 )
