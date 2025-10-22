@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Tuple
 import numpy as np  # type: ignore
 import tcod.constants
 from tcod.console import Console
-from tcod.context import Context
 from tcod.map import compute_fov
 
 import exceptions
@@ -74,7 +73,7 @@ class Engine:
         )
         self.game_map.tiles["light"]["bg"][floor_mask] = color
 
-    def render(self, console: Console, context: Context) -> None:
+    def render(self, console: Console, context: tcod.context.Context) -> None:
         if self.player.is_alive:
             self._flicker_torch()
         else:

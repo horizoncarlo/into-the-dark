@@ -32,21 +32,28 @@ player = Actor(
 healing_potion = Item(
     char="!",
     fg_color=(127, 0, 255),
-    name="Healing Potion",
+    name="Potion - Healing",
     consumable=consumable.HealingConsumable(amount=4),
 )
 babel_scroll = Item(
     char="?",
     fg_color=(217, 48, 200),
     bg_color=(255, 255, 255),
-    name="Babel Scroll",
+    name="Scroll - Babel",
     consumable=consumable.BabelConsumable(number_of_turns=10),
+)
+holy_blast_scroll = Item(
+    char="☼",
+    fg_color=(200, 0, 0),
+    bg_color=(255, 255, 255),
+    name="Scroll - Holy Blast",
+    consumable=consumable.HolyBlastConsumable(damage=12, radius=3),
 )
 sunbeam_scroll = Item(
     char="▼",
     fg_color=(204, 102, 0),
     bg_color=(255, 255, 255),
-    name="Scroll of Sunbeam",
+    name="Scroll - Sunbeam",
     consumable=consumable.SunbeamConsumable(damage=20, maximum_range=5),
 )
 

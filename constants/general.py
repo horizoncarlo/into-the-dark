@@ -1,9 +1,9 @@
 import numpy as np  # type: ignore
 import tcod
 
-FPS = 30
+DEBUG_NO_FOG_OF_WAR = False
 
-DEBUG_NO_FOG_OF_WAR = True
+FPS = 30
 
 WELCOME_MESSAGES = [
     "Torchlight flickers as the monastery doors close behind you",

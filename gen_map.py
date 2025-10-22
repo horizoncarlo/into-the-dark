@@ -115,12 +115,17 @@ def place_entities(
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             item_chance = random.random()
-            if item_chance < 0.7:
+            if item_chance < 0.6:
                 entity_factory.healing_potion.spawn(dungeon, x, y)
-            elif item_chance < 0.9:
-                entity_factory.babel_scroll.spawn(dungeon, x, y)
             else:
-                entity_factory.sunbeam_scroll.spawn(dungeon, x, y)
+                scroll = random.choice(
+                    [
+                        entity_factory.holy_blast_scroll,
+                        entity_factory.babel_scroll,
+                        entity_factory.sunbeam_scroll,
+                    ]
+                )
+                scroll.spawn(dungeon, x, y)
 
 
 def tunnel_between(
