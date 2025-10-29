@@ -45,6 +45,7 @@ class Fighter(BaseComponent):
 
     def die(self) -> None:
         if self.engine.player is self.parent:
+            # TODO Popup death message as well as a chat log
             death_message = "You died! Better luck next time."
             death_message_color = colors.player_die
         else:
@@ -61,3 +62,6 @@ class Fighter(BaseComponent):
         self.parent.light_radius = 1
 
         self.engine.message_log.add_message(death_message, death_message_color)
+
+        if self.parent.level.xp_given > 0:
+            self.engine.player.level.add_xp(self.parent.level.xp_given)

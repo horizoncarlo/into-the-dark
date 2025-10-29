@@ -2,10 +2,12 @@ from components import consumable
 from components.ai import HostileEnemy
 from components.fighter import Fighter
 from components.inventory import Inventory
+from components.level import Level
 from constants import colors
 from entity import Actor, Entity, Item
 from render_order import RenderOrder
 
+# TODO Do stairs_up like the down_stairs in tile_types, including showing through fog of war
 stairs_up = Entity(
     char="<",
     fg_color=(150, 150, 170),
@@ -23,6 +25,7 @@ player = Actor(
     ai_cls=HostileEnemy,
     light_radius=4,
     fighter=Fighter(hp=30, defense=2, power=5),
+    level=Level(level_up_base=200),
     inventory=Inventory(
         capacity=26
     ),  # Capacity is the length of the alphabet for the inventory window
@@ -71,6 +74,7 @@ orc = Actor(
     name="Orc",
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=10, defense=0, power=3),
+    level=Level(xp_given=35),
 )
 troll = Actor(
     char="☻",
@@ -78,4 +82,5 @@ troll = Actor(
     name="Troll",
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=16, defense=1, power=4),
+    level=Level(xp_given=100),
 )

@@ -16,7 +16,7 @@ import entity_factory
 import input_handlers
 from constants import colors, general
 from engine import Engine
-from gen_map import generate_dungeon
+from game_map import GameWorld
 
 # Load the background image and remove the alpha channel.
 background_image = tcod.image.load("assets/menu_background.png")[:, :, :3]
@@ -27,7 +27,8 @@ def new_game() -> Engine:
     player = copy.deepcopy(entity_factory.player)
     engine = Engine(player=player)
 
-    engine.game_map = generate_dungeon(
+    engine.game_world = GameWorld(
+        engine=engine,
         max_rooms=general.MAX_ROOMS,
         room_min_size=general.ROOM_MIN_SIZE,
         room_max_size=general.ROOM_MAX_SIZE,
@@ -35,9 +36,8 @@ def new_game() -> Engine:
         map_height=general.MAP_HEIGHT,
         max_monsters_per_room=general.MAX_MONSTERS_PER_ROOM,
         max_items_per_room=general.MAX_ITEMS_PER_ROOM,
-        engine=engine,
     )
-    engine.update_fov()
+    engine.game_world.generate_floor()
 
     engine.message_log.add_message(
         random.choice(general.WELCOME_MESSAGES),
@@ -65,15 +65,41 @@ class MainMenu(input_handlers.BaseEventHandler):
 
         console.print(
             console.width // 2,
-            console.height // 2 - 4,
-            "INTO THE DARK",
-            fg=colors.menu_title,
+            1,
+            """╠═╦═╣ ╔╗   ╦ ╠═╦═╣ ╔═══╗
+  ║   ║╚╗☺ ║   ║   ║   ║
+  ║   ║ ╚╗ ║   ║   ║   ║
+  ║   ║  ╚╗║   ║   ║   ║
+╠═╩═╣ ╩   ╚╝   ╩   ╚═══╝""",
+            fg=(255, 255, 63),
+            alignment=libtcodpy.CENTER,
+        )
+        console.print(
+            console.width // 2,
+            7,
+            """╠═╦═╣ ╦   ╦ ╔══╣
+  ║   ║   ║ ║   
+  ║   ╠═══╣ ╠══╣
+  ║   ║   ║ ║   
+  ╩   ╩   ╩ ╚══╣""",
+            fg=(204, 204, 50),
+            alignment=libtcodpy.CENTER,
+        )
+        console.print(
+            console.width // 2,
+            13,
+            """╔══╗   ╔═╗  ╔══╗  ╦   ╦
+║  ╚╗ ╔╝ ╚╗ ║  ╚╗ ║  ╔╝
+║   ║ ╠═══╣ ╠══╦╝ ╠══╬ 
+║  ╔╝ ║   ║ ║  ╚╗ ║  ╚╗
+╚══╝  ╩   ╩ ╩   ╩ ╩   ╩""",
+            fg=(153, 153, 38),
             alignment=libtcodpy.CENTER,
         )
         console.print(
             console.width // 2,
             console.height - 2,
-            "By Carlo Guglielmin ☺",
+            "By Carlo Guglielmin ♣",
             fg=colors.welcome_text,
             alignment=libtcodpy.CENTER,
         )

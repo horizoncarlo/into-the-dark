@@ -1,7 +1,8 @@
 from typing import Tuple
 
-from constants import colors, general
 import numpy as np  # type: ignore
+
+from constants import colors, general
 
 # Tile struct used for statically defined tile data.
 tile_dt = np.dtype(
@@ -17,7 +18,7 @@ tile_dt = np.dtype(
 def new_tile(
     *,  # Enforce the use of keywords, so that parameter order doesn't matter.
     walkable: int,
-    transparent: int,
+    transparent: bool = False,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
 ) -> np.ndarray:
@@ -34,3 +35,9 @@ floor = new_tile(
 
 wall_color = dark = (ord("█"), colors.WALL_FG_RGB, colors.WALL_BG_RGB)
 wall = new_tile(walkable=False, transparent=False, dark=wall_color, light=wall_color)
+
+down_stairs = new_tile(
+    walkable=True,
+    dark=(ord(">"), (0, 0, 100), (50, 50, 150)),
+    light=(ord(">"), (170, 170, 190), (105, 105, 105)),
+)

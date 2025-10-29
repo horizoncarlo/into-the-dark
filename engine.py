@@ -12,17 +12,18 @@ from tcod.console import Console
 from tcod.map import compute_fov
 
 import exceptions
+import render_functions
 from constants import colors, general
 from message_log import MessageLog
-from render_functions import render_hp_bar, render_names_at_mouse_location
 
 if TYPE_CHECKING:
     from entity import Actor
-    from game_map import GameMap
+    from game_map import GameMap, GameWorld
 
 
 class Engine:
     game_map: GameMap
+    game_world: GameWorld
 
     def __init__(self, player: Actor):
         self.message_log: MessageLog = MessageLog()
@@ -94,13 +95,19 @@ class Engine:
 
         self.game_map.render(console)
 
-        render_hp_bar(
+        render_functions.render_hp_bar(
             console=console,
             current_value=self.player.fighter.hp,
             maximum_value=self.player.fighter.max_hp,
         )
 
-        render_names_at_mouse_location(
+        if self.game_world.current_floor > 1:
+            render_functions.render_dungeon_level(
+                console=console,
+                dungeon_level=self.game_world.current_floor,
+            )
+
+        render_functions.render_names_at_mouse_location(
             console=console,
             engine=self,
             x=general.MESSAGE_LOG_X,

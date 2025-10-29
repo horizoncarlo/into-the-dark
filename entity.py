@@ -4,6 +4,7 @@ import copy
 import math
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 
+from components.level import Level
 from render_order import RenderOrder
 
 if TYPE_CHECKING:
@@ -99,6 +100,7 @@ class Actor(Entity):
         light_radius: int = 8,
         ai_cls: Type[BaseAI],
         fighter: Fighter,
+        level: Level,
         inventory: Inventory = None,
     ):
         super().__init__(
@@ -117,6 +119,9 @@ class Actor(Entity):
 
         self.fighter = fighter
         self.fighter.parent = self
+
+        self.level = level
+        self.level.parent = self
 
         self.inventory = inventory
         if inventory:

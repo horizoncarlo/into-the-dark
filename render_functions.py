@@ -3,10 +3,11 @@ from __future__ import annotations
 from collections import Counter
 from typing import Optional, TYPE_CHECKING
 
+import tcod
+
 from constants import colors, general
 
 if TYPE_CHECKING:
-    from tcod import Console, console
     from engine import Engine
     from game_map import GameMap
 
@@ -32,7 +33,9 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> Optional[str]:
         return names.capitalize()
 
 
-def render_hp_bar(console: Console, current_value: int, maximum_value: int) -> None:
+def render_hp_bar(
+    console: tcod.console.Console, current_value: int, maximum_value: int
+) -> None:
     # Draw the "full" background bar
     console.draw_rect(
         x=general.HP_BAR_X,
@@ -64,8 +67,19 @@ def render_hp_bar(console: Console, current_value: int, maximum_value: int) -> N
     )
 
 
+def render_dungeon_level(console: tcod.console.Console, dungeon_level: int) -> None:
+    """
+    Render the level the player is currently on, at the given location
+    """
+    console.print(
+        x=general.DUNGEON_LVL_X,
+        y=general.DUNGEON_LVL_Y,
+        string=f"Floor: {dungeon_level}",
+    )
+
+
 def render_names_at_mouse_location(
-    console: Console, engine: Engine, x: int, y: int
+    console: tcod.console.Console, engine: Engine, x: int, y: int
 ) -> None:
     mouse_x, mouse_y = engine.mouse_location
 
