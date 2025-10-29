@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import lzma
+import pickle
 import random
 import time
 from typing import TYPE_CHECKING, Tuple
@@ -11,26 +13,29 @@ from tcod.map import compute_fov
 
 import exceptions
 from constants import colors, general
-from input_handlers import MainGameEventHandler
 from message_log import MessageLog
 from render_functions import render_hp_bar, render_names_at_mouse_location
 
 if TYPE_CHECKING:
     from entity import Actor
     from game_map import GameMap
-    from input_handlers import EventHandler
 
 
 class Engine:
     game_map: GameMap
 
     def __init__(self, player: Actor):
-        self.event_handler: EventHandler = MainGameEventHandler(self)
         self.message_log: MessageLog = MessageLog()
         self.mouse_location = (0, 0)
         self.player = player
         self._last_flicker = time.time()
         self._next_flicker_interval = 1
+
+    def save_as(self, filename: str) -> None:
+        """Save this Engine instance as a compressed file."""
+        save_data = lzma.compress(pickle.dumps(self))
+        with open(filename, "wb") as f:
+            f.write(save_data)
 
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:

@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 
-import copy
-import random
+import traceback
 
 import tcod
 
-import entity_factory
+import exceptions
+import input_handlers
+import setup_game
 from constants import colors, general
-from engine import Engine
-from exceptions import StopRendering, StartRendering, ImpossibleAction
-from gen_map import generate_dungeon
+from exceptions import ImpossibleAction
 
 
 # Can play with SDL rendering quality
 # os.environ["SDL_RENDER_SCALE_QUALITY"] = "best"
+
+
+def save_game(handler: input_handlers.BaseEventHandler) -> None:
+    """If the current event handler has an active Engine then save it"""
+    if isinstance(handler, input_handlers.EventHandler):
+        handler.engine.save_as(general.SAVE_FILE)
+        print("Game saved")
 
 
 def main() -> None:
@@ -29,25 +35,7 @@ def main() -> None:
     # tileset = tcod.tileset.load_tilesheet("assets/Runeset_24x24.png", 16, 16, tcod.tileset.CHARMAP_CP437)
     # tileset = tcod.tileset.load_tilesheet("assets/Teeto_K_18x18.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
-    player = copy.deepcopy(entity_factory.player)
-    engine = Engine(player=player)
-
-    engine.game_map = generate_dungeon(
-        max_rooms=general.MAX_ROOMS,
-        room_min_size=general.ROOM_MIN_SIZE,
-        room_max_size=general.ROOM_MAX_SIZE,
-        map_width=general.MAP_WIDTH,
-        map_height=general.MAP_HEIGHT,
-        max_monsters_per_room=general.MAX_MONSTERS_PER_ROOM,
-        max_items_per_room=general.MAX_ITEMS_PER_ROOM,
-        engine=engine,
-    )
-    engine.update_fov()
-
-    engine.message_log.add_message(
-        random.choice(general.WELCOME_MESSAGES),
-        colors.welcome_text,
-    )
+    handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
 
     with tcod.context.new(
         columns=general.WIDTH,
@@ -63,68 +51,41 @@ def main() -> None:
 
         root_console = tcod.console.Console(general.WIDTH, general.HEIGHT, order="F")
 
-        while True:
-            root_console.clear()
+        try:
+            while True:
+                root_console.clear()
 
-            engine.event_handler.on_render(console=root_console, context=context)
+                handler.on_render(console=root_console, context=context)
 
-            context.present(
-                root_console,
-                keep_aspect=True,
-                integer_scaling=True,
-                clear_color=colors.MAP_BORDER_COLOR,
-            )
-
-            try:
-                engine.event_handler.handle_events(
-                    context=context, events=tcod.event.wait()
+                context.present(
+                    root_console,
+                    keep_aspect=True,
+                    integer_scaling=True,
+                    clear_color=colors.MAP_BORDER_COLOR,
                 )
-            except (StopRendering, StartRendering):  # From torch flicker approach
-                pass
-            except ImpossibleAction as ia:
-                engine.message_log.add_error(str(ia))
 
-        # # TODO This approach allows for a torch flicker independent from the player movement (using .get instead of .wait)
-        # # But it causes some hassles for non-map windows (like HistoryViewer) that would get overwritten by re-renders
-        # # Way fancier version in the tcod samples: https://github.com/libtcod/python-tcod/blob/develop/examples/samples_tcod.py
-        # frame_duration = 1 / general.FPS
-        # last_frame = time.time()
-        # is_paused = False
-        #
-        # while True:
-        #     now = time.time()
-        #
-        #     # Render loop MIGHT not be the cleanest, but hey it's our first try
-        #     # Idea is we loop at FPS speed to get a reliable torch flicker and still accept user input
-        #     # Then if we have a paused screen, such as opening HistoryViewer, then we stop redrawing until done
-        #     if not is_paused:
-        #         if now - last_frame >= frame_duration:
-        #             last_frame = now
-        #             engine.event_handler.on_render(root_console, context)
-        #
-        #         time.sleep(max(0, frame_duration - (time.time() - now)))
-        #
-        #         try:
-        #             engine.event_handler.handle_events(context, tcod.event.get())
-        #         except StopRendering:
-        #             is_paused = True
-        #     else:
-        #         # At this point we have HistoryViewer (or another "blocking" task via StopRendering exception)
-        #         # So we render that and instead of .get we pause the loop with .wait
-        #         try:
-        #             engine.event_handler.on_render(
-        #                 console=root_console, context=context
-        #             )
-        #             engine.event_handler.handle_events(
-        #                 context=context, events=tcod.event.wait()
-        #             )
-        #         except StartRendering:
-        #             is_paused = False
-
-        # Alternative approach from TCOD doc tutorial, nice part is the magnification
-        # console = context.new_console(magnification=2)
-        # console.print(x=1, y=10, string="@")
-        # context.present(console, keep_aspect=True, integer_scaling=True)
+                try:
+                    for event in tcod.event.wait():
+                        context.convert_event(event)
+                        handler = handler.handle_event(event)
+                except ImpossibleAction as ia:
+                    if isinstance(handler, input_handlers.EventHandler):
+                        handler.engine.message_log.add_error(str(ia))
+                except Exception:  # Handle exceptions in game.
+                    traceback.print_exc()  # Print error to stderr.
+                    # Then print the error to the message log.
+                    if isinstance(handler, input_handlers.EventHandler):
+                        handler.engine.message_log.add_message(
+                            traceback.format_exc(), colors.error
+                        )
+        except exceptions.QuitWithoutSaving:
+            raise
+        except SystemExit:  # Save and quit
+            save_game(handler)
+            raise
+        except BaseException:  # Save on any other unexpected exception
+            save_game(handler)
+            raise
 
 
 if __name__ == "__main__":

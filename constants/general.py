@@ -3,6 +3,7 @@ import tcod
 
 DEBUG_NO_FOG_OF_WAR = False
 
+SAVE_FILE = "into_the_dark.sav"
 FPS = 30
 
 WELCOME_MESSAGES = [

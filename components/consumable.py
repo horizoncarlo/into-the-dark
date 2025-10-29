@@ -9,6 +9,7 @@ from components.base_component import BaseComponent
 from constants import colors
 from exceptions import ImpossibleAction
 from input_handlers import (
+    ActionOrHandler,
     SingleRangedAttackHandler,
     CrossRangedAttackHandler,
     AreaRangedAttackHandler,
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 class Consumable(BaseComponent):
     parent: Item
 
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item"""
         return actions.ItemAction(consumer, self.parent)
 
@@ -62,15 +63,14 @@ class BabelConsumable(Consumable):
     def __init__(self, number_of_turns: int):
         self.number_of_turns = number_of_turns
 
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor) -> SingleRangedAttackHandler:
         self.engine.message_log.add_message(
             "Select a target location", colors.needs_target
         )
-        self.engine.event_handler = SingleRangedAttackHandler(
+        return SingleRangedAttackHandler(
             self.engine,
             callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
         )
-        return None
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
@@ -100,16 +100,15 @@ class ReckoningConsumable(Consumable):
         self.damage = damage
         self.radius = radius
 
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor) -> AreaRangedAttackHandler:
         self.engine.message_log.add_message(
             "Select a target location", colors.needs_target
         )
-        self.engine.event_handler = AreaRangedAttackHandler(
+        return AreaRangedAttackHandler(
             self.engine,
             radius=self.radius,
             callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
         )
-        return None
 
     def activate(self, action: actions.ItemAction) -> None:
         target_xy = action.target_xy
@@ -137,16 +136,15 @@ class HolyBlastConsumable(Consumable):
         self.char = char
         self.damage = damage
 
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor) -> CrossRangedAttackHandler:
         self.engine.message_log.add_message(
             "Select a target location", colors.needs_target
         )
-        self.engine.event_handler = CrossRangedAttackHandler(
+        return CrossRangedAttackHandler(
             self.engine,
             char=self.char,
             callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
         )
-        return None
 
     def activate(self, action: actions.ItemAction) -> None:
         target_x, target_y = action.target_xy

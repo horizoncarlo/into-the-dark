@@ -38,6 +38,9 @@ error = (255, 64, 64)
 hp_recovered = (0, 255, 0)
 welcome_text = (32, 160, 255)
 
+menu_title = (255, 255, 63)
+menu_text = white
+
 bar_text = white
 bar_filled = (0, 96, 0)
 bar_empty = (64, 16, 16)

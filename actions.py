@@ -79,6 +79,7 @@ class ItemAction(Action):
     def perform(self) -> bool:
         """Invoke the items ability, this action will be given to provide context"""
         self.item.consumable.activate(self)
+        return False
 
 
 class EscapeAction(Action):
@@ -174,7 +175,7 @@ class MovementAction(ActionWithDirection):
 
 
 class BumpAction(ActionWithDirection):
-    def perform(self) -> None:
+    def perform(self) -> bool:
         if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
         else:
