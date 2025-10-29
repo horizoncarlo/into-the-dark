@@ -34,8 +34,6 @@ def new_game() -> Engine:
         room_max_size=general.ROOM_MAX_SIZE,
         map_width=general.MAP_WIDTH,
         map_height=general.MAP_HEIGHT,
-        max_monsters_per_room=general.MAX_MONSTERS_PER_ROOM,
-        max_items_per_room=general.MAX_ITEMS_PER_ROOM,
     )
     engine.game_world.generate_floor()
 

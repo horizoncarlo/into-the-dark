@@ -1,7 +1,26 @@
+from typing import TYPE_CHECKING
+
 import numpy as np  # type: ignore
 import tcod
 
-DEBUG_NO_FOG_OF_WAR = True  # TTODO
+if TYPE_CHECKING:
+    pass
+
+# TODO IDEAS:
+# Real time "action commands" for attack/defense
+# More interesting stat system as a result
+# Bosses
+# Different colored tiles per floor
+# Different map gen params per floor (some are a few huge rooms, others are tight small rooms, etc.)
+# Max floor to reach? Or just scale infinitely?
+# Scroll (Item) to show map (toggle fog of war for a render window)
+# More enemies (duh), including DOTs like poison
+# Momentum style push back on attack?
+# Pillars, doors, chasms, water, other room gen features (would be more types of tiles)
+# Change healing potions to some kind of MP based spell? They're really boring at the moment
+# More RANDOM stuff, including enemy HP and so on, floors currently (obviously) feel hecka samey
+
+DEBUG_NO_FOG_OF_WAR = False
 
 SAVE_FILE = "into_the_dark.sav"
 FPS = 30
@@ -23,8 +42,6 @@ MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
 MAX_ROOMS = 200
 ROOM_MAX_SIZE = 9
 ROOM_MIN_SIZE = 4
-MAX_MONSTERS_PER_ROOM = 3
-MAX_ITEMS_PER_ROOM = 2
 
 # TODO Start fullscreen (for now just maximized as it's easier to debug)
 SDL_FLAGS = (
