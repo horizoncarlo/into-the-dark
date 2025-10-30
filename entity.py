@@ -4,12 +4,14 @@ import copy
 import math
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 
+from components.equipment import Equipment
 from components.level import Level
 from render_order import RenderOrder
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
     from components.consumable import Consumable
+    from components.equippable import Equippable
     from components.fighter import Fighter
     from components.inventory import Inventory
     from game_map import GameMap
@@ -101,6 +103,7 @@ class Actor(Entity):
         ai_cls: Type[BaseAI],
         fighter: Fighter,
         level: Level,
+        equipment: Equipment = None,
         inventory: Inventory = None,
     ):
         super().__init__(
@@ -123,6 +126,10 @@ class Actor(Entity):
         self.level = level
         self.level.parent = self
 
+        self.equipment = equipment
+        if equipment:
+            self.equipment.parent = self
+
         self.inventory = inventory
         if inventory:
             self.inventory.parent = self
@@ -144,7 +151,8 @@ class Item(Entity):
         bg_color: Tuple[int, int, int] = None,
         name: str = "<Unnamed>",
         light_radius: int = 8,
-        consumable: Consumable,
+        consumable: Optional[Consumable] = None,
+        equippable: Optional[Equippable] = None,
     ):
         super().__init__(
             x=x,
@@ -159,4 +167,9 @@ class Item(Entity):
         )
 
         self.consumable = consumable
-        self.consumable.parent = self
+        if self.consumable:
+            self.consumable.parent = self
+
+        self.equippable = equippable
+        if self.equippable:
+            self.equippable.parent = self

@@ -1,5 +1,7 @@
 from components import consumable
+from components import equippable
 from components.ai import HostileEnemy
+from components.equipment import Equipment
 from components.fighter import Fighter
 from components.inventory import Inventory
 from components.level import Level
@@ -24,11 +26,12 @@ player = Actor(
     name="Priest",
     ai_cls=HostileEnemy,
     light_radius=4,
-    fighter=Fighter(hp=30, defense=2, power=5),
+    fighter=Fighter(hp=30, base_defense=1, base_power=2),
     level=Level(level_up_base=200),
     inventory=Inventory(
         capacity=26
     ),  # Capacity is the length of the alphabet for the inventory window
+    equipment=Equipment(),
 )
 
 # Items
@@ -67,13 +70,46 @@ sunbeam_scroll = Item(
     consumable=consumable.SunbeamConsumable(damage=20, maximum_range=5),
 )
 
+# Equipment
+dagger = Item(
+    char="/",
+    fg_color=(0, 191, 255),
+    bg_color=(0, 0, 104),
+    name="Dagger",
+    equippable=equippable.Dagger(),
+)
+
+cudgel = Item(
+    char="/",
+    fg_color=(0, 191, 255),
+    bg_color=(0, 0, 104),
+    name="Cudgel",
+    equippable=equippable.Cudgel(),
+)
+
+vestments = Item(
+    char="[",
+    fg_color=(139, 69, 19),
+    bg_color=(0, 0, 104),
+    name="Vestments",
+    equippable=equippable.Vestments(),
+)
+
+chain_mail = Item(
+    char="[",
+    fg_color=(139, 69, 19),
+    bg_color=(0, 0, 104),
+    name="Chain Mail",
+    equippable=equippable.ChainMail(),
+)
+
 # Monsters
 orc = Actor(
     char="Ω",
     fg_color=(63, 127, 63),
     name="Orc",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=10, defense=0, power=3),
+    fighter=Fighter(hp=9, base_defense=0, base_power=3),
     level=Level(xp_given=35),
 )
 troll = Actor(
@@ -81,6 +117,6 @@ troll = Actor(
     fg_color=(0, 240, 0),
     name="Troll",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=16, defense=1, power=4),
+    fighter=Fighter(hp=16, base_defense=1, base_power=4),
     level=Level(xp_given=100),
 )

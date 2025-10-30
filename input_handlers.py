@@ -286,7 +286,12 @@ class InventoryEventHandler(AskUserEventHandler):
         if number_of_items_in_inventory > 0:
             for i, item in enumerate(self.engine.player.inventory.items):
                 item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+
+                item_string = f"({item_key}) {item.name}"
+                if self.engine.player.equipment.item_is_equipped(item):
+                    item_string = f"{item_string} (On ☺)"
+
+                console.print(x + 1, y + i + 1, item_string)
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
@@ -318,7 +323,12 @@ class InventoryActivateHandler(InventoryEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Return the action for the selected item"""
-        return item.consumable.get_action(self.engine.player)
+        if item.consumable:
+            return item.consumable.get_action(self.engine.player)
+        elif item.equippable:
+            return actions.EquipAction(self.engine.player, item)
+        else:
+            return None
 
 
 class InventoryDropHandler(InventoryEventHandler):
@@ -550,12 +560,12 @@ class LevelUpEventHandler(AskUserEventHandler):
         console.print(
             x=x + 1,
             y=5,
-            string=f"b) Strength (+1 power, from {self.engine.player.fighter.power})",
+            string=f"b) Strength (+1 power, from {self.engine.player.fighter.base_power})",
         )
         console.print(
             x=x + 1,
             y=6,
-            string=f"c) Toughnesss (+1 defense, from {self.engine.player.fighter.defense})",
+            string=f"c) Toughnesss (+1 defense, from {self.engine.player.fighter.base_defense})",
         )
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
@@ -629,10 +639,12 @@ class CharacterScreenEventHandler(AskUserEventHandler):
         )
 
         console.print(
-            x=x + 1, y=y + 4, string=f"Power:   {self.engine.player.fighter.power}"
+            x=x + 1, y=y + 4, string=f"Power:   {self.engine.player.fighter.base_power}"
         )
         console.print(
-            x=x + 1, y=y + 5, string=f"Defense: {self.engine.player.fighter.defense}"
+            x=x + 1,
+            y=y + 5,
+            string=f"Defense: {self.engine.player.fighter.base_defense}",
         )
 
 

@@ -26,8 +26,8 @@ CHANCE_ITEMS: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factory.healing_potion, 40)],
     2: [(entity_factory.babel_scroll, 10)],
     3: [(entity_factory.holy_blast_scroll, 10)],
-    4: [(entity_factory.sunbeam_scroll, 20)],
-    5: [(entity_factory.reckoning_scroll, 20)],
+    4: [(entity_factory.sunbeam_scroll, 20), (entity_factory.cudgel, 5)],
+    5: [(entity_factory.reckoning_scroll, 20), (entity_factory.chain_mail, 15)],
 }
 CHANCE_ENEMIES: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factory.orc, 80)],

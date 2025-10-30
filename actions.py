@@ -78,7 +78,8 @@ class ItemAction(Action):
 
     def perform(self) -> bool:
         """Invoke the items ability, this action will be given to provide context"""
-        self.item.consumable.activate(self)
+        if self.item.consumable:
+            self.item.consumable.activate(self)
         return False
 
 
@@ -89,7 +90,20 @@ class EscapeAction(Action):
 
 class DropItem(ItemAction):
     def perform(self) -> None:
+        if self.entity.equipment.item_is_equipped(self.item):
+            self.entity.equipment.toggle_equip(self.item)
+
         self.entity.inventory.drop(self.item)
+
+
+class EquipAction(Action):
+    def __init__(self, entity: Actor, item: Item):
+        super().__init__(entity)
+
+        self.item = item
+
+    def perform(self) -> None:
+        self.entity.equipment.toggle_equip(self.item)
 
 
 class WaitAction(Action):
@@ -151,7 +165,7 @@ class MeleeAction(ActionWithDirection):
         if not target:
             raise exceptions.ImpossibleAction("Nothing to attack")
 
-        damage = self.entity.fighter.power - target.fighter.defense
+        damage = self.entity.fighter.base_power - target.fighter.base_defense
         attack_color = (
             colors.player_atk if self.entity is self.engine.player else colors.enemy_atk
         )
