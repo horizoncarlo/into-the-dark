@@ -43,7 +43,7 @@ def render_hp_bar(
         width=general.HP_BAR_WIDTH,
         height=general.HP_BAR_HEIGHT,
         ch=1,
-        bg=colors.bar_empty,
+        bg=colors.hp_bar_empty,
     )
 
     # Draw the current HP as a bar in front
@@ -55,7 +55,7 @@ def render_hp_bar(
             width=filled_bar_width,
             height=general.HP_BAR_HEIGHT,
             ch=1,
-            bg=colors.bar_filled,
+            bg=colors.hp_bar_filled,
         )
 
     # Draw the numeric HP text value
@@ -63,7 +63,7 @@ def render_hp_bar(
         x=general.HP_BAR_X + 1,
         y=general.HP_BAR_Y,
         string=f"<HP> {current_value:0>2}/{maximum_value:0>2}",  # Pad front zeroes
-        fg=colors.bar_text,
+        fg=colors.hp_bar_text,
     )
 
 

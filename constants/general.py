@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 # TTODO For demo:
 # Different color tiles and random gen per floor
 # Show equipped items on Character instead of in inventory. Don't need a way to drop them
+# Make all weapon fill be based on equipped weapon, and start with a random different weapon
 
 # TODO IDEAS:
 # Real time "action commands" for attack/defense
@@ -47,7 +48,7 @@ WELCOME_MESSAGES = [
 ]
 
 # Increasing the size values will "zoom out" on the content
-WIDTH, HEIGHT = 79, 48  # Manually done for 1080p
+WIDTH, HEIGHT = 80, 45  # Manually done for 1080p
 HUD_SIZE = 5
 MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
 

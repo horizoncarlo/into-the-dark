@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import random
 from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
 
 import tcod.constants
@@ -8,7 +9,15 @@ import tcod.event
 from tcod import libtcodpy
 
 import actions
-from actions import Action, BumpAction, EscapeAction, PickupAction, WaitAction, ActionWithDirection
+from actions import (
+    Action,
+    BumpAction,
+    EscapeAction,
+    PickupAction,
+    WaitAction,
+    ActionWithDirection,
+    MeleeAction,
+)
 from constants import colors, general
 from exceptions import QuitWithoutSaving
 
@@ -128,120 +137,113 @@ class EventHandler(BaseEventHandler):
 
 
 class HeroAttackHandler(EventHandler):
-    render_count = 0
-    hit_at = 0
-    wait_count = 0
-    up_count = 0
-    iter_count = 1
-    direction_mod = 1
-    damage_ranges = [
-        (10, 1),
+    # Math for our beautiful art
+    starting_x = 1
+    starting_y = 1
+    weapon_hilt_length = 6
+    weapon_fill_length = 11
+    weapon_total_length = weapon_hilt_length + weapon_fill_length
+
+    # lol respacing this will make it more clear visually
+    beautiful_weapon_art = """├────┼═══════════╗
+│││││■           ■
+├────┼═══════════╝"""
+
+    # Percent and damage tuple for breakpoints of how much to do at what fill amount
+    weapon_damage_breakpoints = [
+        (15, 1),
         (30, 2),
         (50, 3),
         (70, 4),
         (90, 5),
     ]
+    weapon_fill_speed_mod = 1  # Higher is SLOWER, as this is used in modulus
+    weapon_progression_speed_mod = 0.1  # Per iteration of filling to the top/bottom how much we increase the speed by
+    weapon_fill_char = "█"
+    weapon_fg_color = colors.weapon
+    weapon_bg_color = colors.black
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, dx: int, dy: int):
         super().__init__(engine)
 
-        engine.message_log.add_message(f"INIT WITH MESSAGE {self.engine.player.equipment.weapon}")
+        # Used for tracking a successful melee attack later
+        self.dx = dx
+        self.dy = dy
+
+        self.render_count = 0  # Base the weapon bar fill speed on this
+        self.iter_count = 1  # How many total times we've filled up the weapon bar
+        self.max_iter_count = int(
+            self.weapon_fill_length / 2.5
+        )  # At most jump the weapon fill bar by half-ish it's length in a single go
+        # Start our fill randomly so the player has to pay attention each time
+        self.fill_length = random.randint(
+            0, self.weapon_fill_length - 1
+        )  # Number of characters to fill into the weapon
+        self.fill_direction = (
+            1 if random.randint(0, 1) else -1
+        )  # Whether we're filling up (+1) or down (-1)
+        # TODO Could start weapon fill iter_count at a higher amount based on what floor we're on - lower floor is faster fill
 
     def on_render(
         self, console: tcod.console.Console, context: tcod.context.Context
     ) -> None:
-        """Render an inventory menu, which displays the items in the inventory, and the letter to select them
-        Will move to a different position based on where the player is located, so the player can always see where they are
-        """
         super().on_render(console, context)
 
+        self.starting_x = (console.width - self.weapon_total_length) // 2
         self.render_count += 1
 
-        starting_x = 1
-        starting_y = 4
-        hilt_length = 6
-        sword_length = 11
-        sword_half_y = 2
-        sword_full_y = 3
+        console.print(
+            self.starting_x,
+            self.starting_y,
+            text=self.beautiful_weapon_art,
+            fg=self.weapon_fg_color,
+            bg=self.weapon_bg_color,
+        )
 
-        console.print(starting_x, starting_y-2, f"MACE {self.render_count}")
+        # Only process every X number of frames, which allows for faster or slower filling
+        if self.render_count % self.weapon_fill_speed_mod == 0:
+            self.fill_length += round(self.iter_count * self.fill_direction)
 
-        if self.hit_at > 0:
-            console.print(starting_x, starting_y-1, f"HIT AT {self.hit_at}")
+            # If we reached the top or bottom do some processing
+            # Cap our fill length, reverse the direction, and increase the iteration count
+            if self.fill_length >= self.weapon_fill_length:
+                self.fill_length = self.weapon_fill_length
+                self.fill_direction = -1
+                self.iter_count += self.weapon_progression_speed_mod
+            elif self.fill_length <= 0:
+                self.fill_length = 0
+                self.fill_direction = 1
+                self.iter_count += self.weapon_progression_speed_mod
 
-        # Can show the damage range numbers
-        # console.print(starting_x+hilt_length, starting_y + sword_full_y + 1, "1", fg=colors.white, bg=colors.black)
-        # console.print(starting_x+hilt_length+sword_length, starting_y + sword_full_y + 1, "5", fg=colors.white, bg=colors.black)
+        # Cap our max iteration count
+        self.iter_count = min(self.iter_count, self.max_iter_count)
 
-        console.print(starting_x, starting_y, text="""
-├────┼═══════════╗
-│││││■           ■
-├────┼═══════════╝
-""",
-        fg=(100, 100, 100), bg=colors.black)
+        fill_bar = self.weapon_fill_char * self.fill_length
+        color_strength = (int)(self.fill_length / self.weapon_fill_length * 100) + 50
 
-        # Pause every few frames?
-        # if self.render_count % 50 == 0:
-        #     self.wait_count = 10
-
-        # if self.wait_count > 0:
-        #     attack_mod = sword_length * 2
-        #     attack_power = sword_length
-        # else:
-        #     attack_mod = sword_length
-        #     attack_power = self.render_count % sword_length
-
-        if self.render_count % 1 == 0:
-            self.up_count += round(self.iter_count * self.direction_mod)
-
-            if self.up_count >= sword_length:
-                self.up_count = sword_length
-                self.direction_mod = -1
-                self.iter_count += 0.1
-            elif self.up_count <= 0:
-                self.up_count = 0
-                self.direction_mod = 1
-                self.iter_count += 0.1
-
-            attack_mod = sword_length
-            attack_power = self.render_count % sword_length
-
-        if self.iter_count > sword_length // 3:
-            self.iter_count = sword_length // 3
-
-        # self.wait_count -= 1
-
-        # print(f"POWER {attack_power=}")
-        # if attack_power == 0:
-        #     attack_mod = 0 if attack_mod == sword_length else sword_length
-
-        # attack_bar_text = "█"*(attack_mod - attack_power + 1)
-        attack_bar_text = "█"*self.up_count
-        color_strength = ((int)(self.up_count / sword_length * 100) + 50)
-        console.print(starting_x+hilt_length, starting_y+sword_half_y, attack_bar_text, fg=(0, color_strength, color_strength))
+        console.print(
+            self.starting_x + self.weapon_hilt_length,
+            self.starting_y + 1,
+            fill_bar,
+            fg=(0, color_strength, color_strength),
+            bg=colors.black,
+        )
 
     def get_damage(self, fill_percent):
-        for threshold, damage in reversed(self.damage_ranges):
+        # Convert our percent of the weapon bar into a damage amount based on the ranges
+        for threshold, damage in reversed(self.weapon_damage_breakpoints):
             if fill_percent >= threshold:
                 return damage
-        return 1
+        return self.engine.player.fighter.base_power
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
-        # QUIDEL
-        print("HERO ATTACK {event.sym} at {self.render_count}")
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        fill_percent = self.fill_length / self.weapon_fill_length * 100
+        damage_done = self.get_damage(fill_percent)
 
-        self.iter_count = 1
+        return MeleeAction(
+            self.engine.player, self.dx, self.dy, override_damage=damage_done
+        )
 
-        fill_percent = self.up_count / 11 * 100
-
-        # done_damage = max(d for p, d in self.damage_ranges if fill_percent >= p)
-        done_damage = self.get_damage(fill_percent)
-
-        # Could convert percent directly to damage, but means only 100% is max damage which is really hard to do
-        # done_damage = math.floor(((fill_percent / 100) * (max_damage - min_damage)) + min_damage)
-        self.hit_at = done_damage
-
-        return MainGameEventHandler(self.engine)
 
 class MainGameEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
@@ -256,7 +258,7 @@ class MainGameEventHandler(EventHandler):
             action: ActionWithDirection = BumpAction(player, dx, dy)
 
             if action.target_actor:
-                return HeroAttackHandler(self.engine)
+                return HeroAttackHandler(self.engine, dx, dy)
         elif key in WAIT_KEYS:
             action = WaitAction(player)
         elif key in ESCAPE_KEYS:

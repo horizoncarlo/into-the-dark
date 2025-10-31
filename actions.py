@@ -160,16 +160,24 @@ class ActionWithDirection(Action):
 
 
 class MeleeAction(ActionWithDirection):
+    def __init__(
+        self, entity: Actor, dx: int, dy: int, override_damage: int | None = None
+    ):
+        super().__init__(entity, dx, dy)
+
+        self.override_damage = override_damage if override_damage else None
+
     def perform(self) -> bool:
         target = self.target_actor
         if not target:
             raise exceptions.ImpossibleAction("Nothing to attack")
 
-        # QUIDEL
-        if self.entity is self.engine.player:
-            raise exceptions.StartAttackHandler()
-
-        damage = self.entity.fighter.base_power - target.fighter.base_defense
+        attack_amount = (
+            self.override_damage
+            if self.override_damage
+            else self.entity.fighter.base_power
+        )
+        damage = attack_amount - target.fighter.base_defense
         attack_color = (
             colors.player_atk if self.entity is self.engine.player else colors.enemy_atk
         )
