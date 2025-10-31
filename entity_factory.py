@@ -29,8 +29,8 @@ player = Actor(
     fighter=Fighter(hp=30, base_defense=1, base_power=2),
     level=Level(level_up_base=200),
     inventory=Inventory(
-        capacity=26
-    ),  # Capacity is the length of the alphabet for the inventory window
+        capacity=26 + 2
+    ),  # Capacity is the length of the alphabet for the inventory window, plus 2 for equipped items
     equipment=Equipment(),
 )
 

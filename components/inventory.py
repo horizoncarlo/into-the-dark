@@ -15,6 +15,14 @@ class Inventory(BaseComponent):
         self.capacity = capacity
         self.items: List[Item] = []
 
+    @property
+    def equipped_items(self):
+        return [item for item in self.items if item.equippable]
+
+    @property
+    def filtered_items(self):
+        return [item for item in self.items if not item.equippable]
+
     def drop(self, item: Item) -> None:
         """
         Removes an item from the inventory and restores it to the game map, at the player's current location

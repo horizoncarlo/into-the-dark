@@ -49,7 +49,7 @@ class PickupAction(Action):
 
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                if len(inventory.items) >= inventory.capacity:
+                if len(inventory.filtered_items) >= inventory.capacity:
                     raise exceptions.ImpossibleAction("Your inventory is full")
 
                 self.engine.game_map.entities.remove(item)

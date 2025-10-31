@@ -7,7 +7,6 @@ if TYPE_CHECKING:
     pass
 
 # TODO NEXT:
-# Show equipped items on Character instead of in inventory. Don't need a way to drop them
 # Make all weapon fill be based on equipped weapon, and start with a random different weapon
 
 # TODO IDEAS:

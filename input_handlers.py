@@ -375,7 +375,10 @@ class InventoryEventHandler(AskUserEventHandler):
         Will move to a different position based on where the player is located, so the player can always see where they are
         """
         super().on_render(console, context)
-        number_of_items_in_inventory = len(self.engine.player.inventory.items)
+
+        self.engine.player.inventory.items.sort(key=lambda item: item.name)
+
+        number_of_items_in_inventory = len(self.engine.player.inventory.filtered_items)
 
         height = number_of_items_in_inventory + 2
 
@@ -402,15 +405,11 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        self.engine.player.inventory.items.sort(key=lambda item: item.name)
-
         if number_of_items_in_inventory > 0:
-            for i, item in enumerate(self.engine.player.inventory.items):
+            for i, item in enumerate(self.engine.player.inventory.filtered_items):
                 item_key = chr(ord("a") + i)
 
                 item_string = f"({item_key}) {item.name}"
-                if self.engine.player.equipment.item_is_equipped(item):
-                    item_string = f"{item_string} (On ☺)"
 
                 console.print(x + 1, y + i + 1, item_string)
         else:
@@ -423,7 +422,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
         if 0 <= index <= 26:
             try:
-                selected_item = player.inventory.items[index]
+                selected_item = player.inventory.filtered_items[index]
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry", colors.invalid)
                 return None
@@ -740,7 +739,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
             x=x,
             y=y,
             width=width,
-            height=7,
+            height=9,
             title=self.TITLE,
             clear=True,
             fg=(255, 255, 255),
@@ -769,6 +768,13 @@ class CharacterScreenEventHandler(AskUserEventHandler):
             y=y + 5,
             string=f"Defense: {self.engine.player.fighter.base_defense}",
         )
+
+        for i, item in enumerate(self.engine.player.inventory.equipped_items):
+            console.print(
+                x=x + 1,
+                y=y + 6 + i,
+                string=f"Gear:    {item.name}",
+            )
 
 
 class HistoryViewer(EventHandler):
