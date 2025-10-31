@@ -662,7 +662,7 @@ class LevelUpEventHandler(AskUserEventHandler):
             x=x,
             y=0,
             width=35,
-            height=8,
+            height=10,
             title=self.TITLE,
             clear=True,
             fg=(255, 255, 255),
@@ -685,8 +685,9 @@ class LevelUpEventHandler(AskUserEventHandler):
         console.print(
             x=x + 1,
             y=6,
-            string=f"c) Toughnesss (+1 defense, from {self.engine.player.fighter.base_defense})",
+            string=f"c) Toughness (+1 defense, from {self.engine.player.fighter.base_defense})",
         )
+        console.print(x=x + 1, y=8, string="You also recover some of your HP")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player

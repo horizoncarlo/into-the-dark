@@ -59,8 +59,8 @@ def main() -> None:
                 now = time.time()
 
                 if now - last_frame >= frame_duration:
-                    root_console.clear()
                     last_frame = now
+                    root_console.clear()
                     handler.on_render(console=root_console, context=context)
 
                     context.present(
