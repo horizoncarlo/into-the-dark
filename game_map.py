@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import math
+import random
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
 
 import tile_types
-from constants import general
+from constants import colors, general
 from entity import Actor, Item
 
 if TYPE_CHECKING:
@@ -92,7 +94,7 @@ class GameMap:
             choicelist=[self.tiles["light"], self.tiles["dark"]],
             default=(
                 self.tiles["dark"]
-                if general.DEBUG_NO_FOG_OF_WAR
+                if general.DEBUG_NO_FOG_OF_WAR or self.engine.show_entire_map
                 else general.FOG_OF_WAR
             ),
         )
@@ -122,32 +124,61 @@ class GameWorld:
         self,
         *,
         engine: Engine,
-        map_width: int,
-        map_height: int,
-        max_rooms: int,
-        room_min_size: int,
-        room_max_size: int,
         current_floor: int = 0,
     ):
         self.engine = engine
-        self.map_width = map_width
-        self.map_height = map_height
-        self.max_rooms = max_rooms
-        self.room_min_size = room_min_size
-        self.room_max_size = room_max_size
         self.current_floor = current_floor
 
     def generate_floor(self) -> None:
         from gen_map import generate_dungeon
 
         self.current_floor += 1
+        self.engine.show_entire_map = False
+
+        # Customize how our tiles look (symbols and colors)
+        tile_types.generate_tiles()
+        map_width = general.WIDTH
+        map_height = general.HEIGHT - general.HUD_SIZE
+
+        # Note for the room cap, if a room intersects we skip it, so it's okay to have a potential lot here
+        max_rooms = math.ceil(map_width * map_height / random.randint(5, 80))
+        room_min_size = random.randint(2, 6)
+        room_max_size = room_min_size + random.randint(2, 5)
+
+        # Some of the crazier options only happen after they have a normal floor, to give a bit of a fair/consistent start
+        if self.current_floor > 1:
+            # Have a chance for a smaller map after the first floor
+            if random.random() > 0.75:
+                map_width = random.randint(general.WIDTH // 4, general.WIDTH)
+                map_height = max(
+                    random.randint(general.HEIGHT // 4, general.HEIGHT)
+                    - general.HUD_SIZE,
+                    general.HUD_SIZE * 2,
+                )
+
+            # Sometimes get no fog of war...black sheep wall
+            if random.random() > 0.9:
+                self.engine.message_log.add_message(
+                    "You are BLESSED with divine sight", colors.yellow
+                )
+                self.engine.show_entire_map = True
+
+            # TODO Randomize our light radius per floor for fun - should eventually dwindle over time as a resource?
+            # And of course the chance for something REALLY wild, that almost looks like a bug haha
+            if random.random() > 0.95:
+                self.engine.player.light_radius = random.randint(10, 20)
+            else:
+                self.engine.player.light_radius = random.randint(2, 5)
+
+        self.engine.make_new_bar_color()
 
         self.engine.game_map = generate_dungeon(
-            max_rooms=self.max_rooms,
-            room_min_size=self.room_min_size,
-            room_max_size=self.room_max_size,
-            map_width=self.map_width,
-            map_height=self.map_height,
+            max_rooms=max_rooms,
+            room_min_size=room_min_size,
+            room_max_size=room_max_size,
+            map_width=map_width,
+            map_height=map_height,
             engine=self.engine,
         )
+
         self.engine.update_fov()

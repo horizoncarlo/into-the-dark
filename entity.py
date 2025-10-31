@@ -48,6 +48,7 @@ class Entity:
         self.light_radius = light_radius
         self.blocks_movement = blocks_movement
         self.render_order = render_order
+        self.last_seen_player = 0
         if parent:
             # If parent isn't provided now then it will be set later
             self.parent = parent

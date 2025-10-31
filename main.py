@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import time
 import traceback
 
 import tcod
@@ -50,36 +51,43 @@ def main() -> None:
         # root_console = tcod.console.Console(rec_width+1, rec_height, order="F")
 
         root_console = tcod.console.Console(general.WIDTH, general.HEIGHT, order="F")
+        frame_duration = 1 / general.FPS
+        last_frame = time.time()
 
         try:
             while True:
-                root_console.clear()
+                now = time.time()
 
-                handler.on_render(console=root_console, context=context)
+                if now - last_frame >= frame_duration:
+                    root_console.clear()
+                    last_frame = now
+                    handler.on_render(console=root_console, context=context)
 
-                context.present(
-                    root_console,
-                    keep_aspect=True,
-                    integer_scaling=True,
-                    clear_color=colors.MAP_BORDER_COLOR,
-                )
+                    context.present(
+                        root_console,
+                        keep_aspect=True,
+                        integer_scaling=True,
+                        clear_color=colors.MAP_BORDER_COLOR,
+                    )
 
-                try:
-                    for event in tcod.event.wait():
-                        context.convert_event(event)
-                        handler = handler.handle_event(event)
-                except ImpossibleAction as ia:
-                    if isinstance(handler, input_handlers.EventHandler):
-                        handler.engine.message_log.add_error(str(ia))
-                except Exception:  # Handle exceptions in game.
-                    traceback.print_exc()  # Print error to stderr.
-                    # Then print the error to the message log.
-                    if isinstance(handler, input_handlers.EventHandler):
-                        handler.engine.message_log.add_message(
-                            traceback.format_exc(), colors.error
-                        )
+                    try:
+                        for event in tcod.event.get():
+                            context.convert_event(event)
+                            handler = handler.handle_event(event)
+                    except ImpossibleAction as ia:
+                        if isinstance(handler, input_handlers.EventHandler):
+                            handler.engine.message_log.add_error(str(ia))
+                    except Exception:
+                        traceback.print_exc()
+                        # Then print the error to the message log
+                        if isinstance(handler, input_handlers.EventHandler):
+                            handler.engine.message_log.add_message(
+                                traceback.format_exc(), colors.error
+                            )
+
+                    time.sleep(max(0.0, frame_duration - (time.time() - now)))
         except exceptions.QuitWithoutSaving:
-            raise
+            pass
         except SystemExit:  # Save and quit
             save_game(handler)
             raise

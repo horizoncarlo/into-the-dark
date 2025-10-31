@@ -6,19 +6,34 @@ import tcod
 if TYPE_CHECKING:
     pass
 
+# TODO NEXT:
+# Show equipped items on Character instead of in inventory. Don't need a way to drop them
+# Make all weapon fill be based on equipped weapon, and start with a random different weapon
+
 # TODO IDEAS:
-# Real time "action commands" for attack/defense
-# More interesting stat system as a result
+# More interesting stat system, perhaps can modify how weapon fill timing works?
 # Bosses
-# Different colored tiles per floor
-# Different map gen params per floor (some are a few huge rooms, others are tight small rooms, etc.)
 # Max floor to reach? Or just scale infinitely?
 # Scroll (Item) to show map (toggle fog of war for a render window)
 # More enemies (duh), including DOTs like poison
 # Momentum style push back on attack?
 # Pillars, doors, chasms, water, other room gen features (would be more types of tiles)
 # Change healing potions to some kind of MP based spell? They're really boring at the moment
-# More RANDOM stuff, including enemy HP and so on, floors currently (obviously) feel hecka samey
+# Spells and MP in general, can try to learn a scroll instead of using it? Then have access to it forever. Likely need to scale (aka weaken) spells accordingly
+# Game timer for high scores? And a scoreboard in general
+# More RANDOM stuff, including enemy HP/damage and so on, room contents currently (obviously) feel hecka samey
+# Undead and Turning undead concepts
+# Very very simple initial character choices? Changes stats, HP, equipment, etc.
+# Choose your own character icon color (foreground AND background?)
+# Stances like Aggressive or Defensive that build over time (rewarding keeping them on and planning and not switching). Most have a downside. Do nothing the first turn they're switched?
+# Charge you target enemies with a skill, also builds up over time
+# Enemies that punish the player for waiting, like they charge in or shoot? Only when the player actually waits
+# Doors on rooms
+# Go to orthagonal movement only with no diagonals?
+# Torches that dwindle down the light radius over time
+# Holy Symbol a fallback option (1 or 2 squares radius), would be a different color
+# Directional armed Shield you can hold - slower movement but defensive bonus or damage reduction?
+# Add a help that shows all keys. Also show on start screen menu. Maybe have an Instructions window too
 
 DEBUG_NO_FOG_OF_WAR = False
 
@@ -33,15 +48,8 @@ WELCOME_MESSAGES = [
 ]
 
 # Increasing the size values will "zoom out" on the content
-WIDTH, HEIGHT = 79, 48  # Manually done for 1080p
-HUD_SIZE = 5
-MAP_WIDTH, MAP_HEIGHT = WIDTH, HEIGHT - HUD_SIZE
-
-# TODO Playing with the room count and size really changes the dungeon (...obviously)
-# Realistically won't even be close on the room cap, since if a room intersects we skip it
-MAX_ROOMS = 200
-ROOM_MAX_SIZE = 9
-ROOM_MIN_SIZE = 4
+WIDTH, HEIGHT = 80, 45  # Manually done for 1080p
+HUD_SIZE = 4
 
 # TODO Start fullscreen (for now just maximized as it's easier to debug)
 SDL_FLAGS = (
@@ -60,10 +68,10 @@ HP_BAR_WIDTH = 15
 HP_BAR_HEIGHT = 1
 
 DUNGEON_LVL_X = 1
-DUNGEON_LVL_Y = HEIGHT - HUD_SIZE + 1
+DUNGEON_LVL_Y = HP_BAR_Y + 1
 
 MESSAGE_LOG_X = HP_BAR_WIDTH + 2
-MESSAGE_LOG_Y = HEIGHT - HUD_SIZE + 1
+MESSAGE_LOG_Y = HEIGHT - HUD_SIZE
 MESSAGE_LOG_WIDTH = WIDTH - HP_BAR_WIDTH - 1
 MESSAGE_LOG_HEIGHT = 4
 

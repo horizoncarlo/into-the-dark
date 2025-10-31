@@ -127,6 +127,15 @@ def generate_dungeon(
         room_width = random.randint(room_min_size, room_max_size)
         room_height = random.randint(room_min_size, room_max_size)
 
+        # Have a chance for a very different size room
+        if random.random() > 0.95:
+            mod = random.randint(2, 3) * random.choice([-1, 1])
+            room_width *= mod
+            room_height *= mod
+            # Ensure we keep a minimum size to generate
+            room_width = max(2, room_width)
+            room_height = max(2, room_height)
+
         x = random.randint(0, dungeon.width - room_width - 1)
         y = random.randint(0, dungeon.height - room_height - 1)
 
