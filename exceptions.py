@@ -7,7 +7,3 @@ class ImpossibleAction(Exception):
 
 class QuitWithoutSaving(SystemExit):
     """Can be raised to exit the game without automatically saving"""
-
-
-class StartAttackHandler(Exception):
-    """Disrupt our normal game loop to do the hero weapon attack process"""

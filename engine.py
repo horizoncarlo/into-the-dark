@@ -29,6 +29,8 @@ class Engine:
         self.message_log: MessageLog = MessageLog()
         self.mouse_location = (0, 0)
         self.player = player
+        self.bar_color = None
+        self.show_entire_map = False
         self._last_flicker = time.time()
         self._next_flicker_interval = 1
 
@@ -37,6 +39,9 @@ class Engine:
         save_data = lzma.compress(pickle.dumps(self))
         with open(filename, "wb") as f:
             f.write(save_data)
+
+    def make_new_bar_color(self):
+        self.bar_color = colors.generate_color()
 
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
@@ -61,7 +66,7 @@ class Engine:
     def _flicker_torch(self):
         now = time.time()
         if now - self._last_flicker >= self._next_flicker_interval:
-            base = np.array(colors.TORCH_BASE_RGB)
+            base = np.array(colors.TORCH_BG_BASE)
             variation = random.randint(
                 general.TORCH_FLICKER_COLOR_MIN, general.TORCH_FLICKER_COLOR_MAX
             )
@@ -99,6 +104,14 @@ class Engine:
             console=console,
             current_value=self.player.fighter.hp,
             maximum_value=self.player.fighter.max_hp,
+        )
+
+        # TODO If you want to be blinding by a flashing rainbow use colors.generate_color() here for fg instead
+        console.print(
+            0,
+            general.HEIGHT - general.HUD_SIZE - 1,
+            "─" * general.WIDTH,
+            fg=self.bar_color,
         )
 
         if self.game_world.current_floor > 1:

@@ -703,8 +703,10 @@ class LevelUpEventHandler(AskUserEventHandler):
                 player.level.increase_defense()
         else:
             self.engine.message_log.add_message("Invalid entry", colors.invalid)
-
             return None
+
+        # Heal the player a bit because that feels natural on level up
+        player.fighter.heal(player.fighter.max_hp // 5)
 
         return super().ev_keydown(event)
 

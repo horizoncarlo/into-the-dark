@@ -51,8 +51,14 @@ class HostileEnemy(BaseAI):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
-    def perform(self) -> None:
-        if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+    def perform(self) -> bool:
+        # Only move the enemy in if they see the player, or have recently seem them (up to a cap)
+        has_visibility = self.engine.game_map.visible[self.entity.x, self.entity.y]
+        if self.entity.last_seen_player > 0 or has_visibility:
+            if has_visibility:
+                self.entity.last_seen_player = 5
+            self.entity.last_seen_player -= 1
+
             target = self.engine.player
             dx = target.x - self.entity.x
             dy = target.y - self.entity.y

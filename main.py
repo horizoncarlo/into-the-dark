@@ -87,7 +87,7 @@ def main() -> None:
 
                     time.sleep(max(0.0, frame_duration - (time.time() - now)))
         except exceptions.QuitWithoutSaving:
-            raise
+            pass
         except SystemExit:  # Save and quit
             save_game(handler)
             raise

@@ -25,6 +25,7 @@ background_image = tcod.image.load("assets/menu_background.png")[:, :, :3]
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance"""
     player = copy.deepcopy(entity_factory.player)
+    engine = Engine(player=player)
 
     # Assign our default equipment
     dagger = copy.deepcopy(entity_factory.dagger)
@@ -37,22 +38,14 @@ def new_game() -> Engine:
     player.inventory.items.append(vestments)
     player.equipment.toggle_equip(vestments, add_message=False)
 
-    engine = Engine(player=player)
-
-    engine.game_world = GameWorld(
-        engine=engine,
-        max_rooms=general.MAX_ROOMS,
-        room_min_size=general.ROOM_MIN_SIZE,
-        room_max_size=general.ROOM_MAX_SIZE,
-        map_width=general.MAP_WIDTH,
-        map_height=general.MAP_HEIGHT,
-    )
-    engine.game_world.generate_floor()
-
     engine.message_log.add_message(
         random.choice(general.WELCOME_MESSAGES),
         colors.welcome_text,
     )
+
+    engine.game_world = GameWorld(engine=engine)
+    engine.game_world.generate_floor()
+
     return engine
 
 
