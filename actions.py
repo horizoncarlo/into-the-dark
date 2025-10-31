@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import Optional, Tuple, TYPE_CHECKING
 
 import exceptions
@@ -172,10 +173,16 @@ class MeleeAction(ActionWithDirection):
         if not target:
             raise exceptions.ImpossibleAction("Nothing to attack")
 
-        attack_amount = (
-            self.override_damage
-            if self.override_damage
+        # Randomize damage if we have a range
+        base_power_calc = (
+            random.randint(
+                self.entity.fighter.base_power_min, self.entity.fighter.base_power
+            )
+            if self.entity.fighter.base_power_min
             else self.entity.fighter.base_power
+        )
+        attack_amount = (
+            self.override_damage if self.override_damage else base_power_calc
         )
         damage = attack_amount - target.fighter.base_defense
         attack_color = (

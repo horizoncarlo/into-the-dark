@@ -13,11 +13,18 @@ if TYPE_CHECKING:
 class Fighter(BaseComponent):
     parent: Actor
 
-    def __init__(self, hp: int, base_defense: int, base_power: int):
+    def __init__(
+        self,
+        hp: int,
+        base_defense: int,
+        base_power: int,
+        base_power_min: int | None = None,
+    ):
         self.max_hp = hp
         self._hp = hp
         self.base_defense = base_defense
         self.base_power = base_power
+        self.base_power_min = base_power_min
 
     @property
     def hp(self) -> int:
@@ -61,8 +68,7 @@ class Fighter(BaseComponent):
 
     def die(self) -> None:
         if self.engine.player is self.parent:
-            # TODO Popup death message as well as a chat log
-            death_message = "You died! Better luck next time."
+            death_message = "You died! The darkness of the monastery consumes you..."
             death_message_color = colors.player_die
         else:
             death_message = f"{self.parent.name} is dead!"

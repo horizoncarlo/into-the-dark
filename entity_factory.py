@@ -109,7 +109,7 @@ orc = Actor(
     fg_color=(63, 127, 63),
     name="Orc",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=9, base_defense=0, base_power=3),
+    fighter=Fighter(hp=10, base_defense=0, base_power_min=2, base_power=4),
     level=Level(xp_given=35),
 )
 troll = Actor(
@@ -117,6 +117,6 @@ troll = Actor(
     fg_color=(0, 240, 0),
     name="Troll",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=16, base_defense=1, base_power=4),
+    fighter=Fighter(hp=16, base_defense=1, base_power_min=3, base_power=5),
     level=Level(xp_given=100),
 )
