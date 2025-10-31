@@ -8,7 +8,7 @@ import tcod.event
 from tcod import libtcodpy
 
 import actions
-from actions import Action, BumpAction, EscapeAction, PickupAction, WaitAction
+from actions import Action, BumpAction, EscapeAction, PickupAction, WaitAction, ActionWithDirection
 from constants import colors, general
 from exceptions import QuitWithoutSaving
 
@@ -127,6 +127,122 @@ class EventHandler(BaseEventHandler):
         self.engine.render(console, context)
 
 
+class HeroAttackHandler(EventHandler):
+    render_count = 0
+    hit_at = 0
+    wait_count = 0
+    up_count = 0
+    iter_count = 1
+    direction_mod = 1
+    damage_ranges = [
+        (10, 1),
+        (30, 2),
+        (50, 3),
+        (70, 4),
+        (90, 5),
+    ]
+
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+
+        engine.message_log.add_message(f"INIT WITH MESSAGE {self.engine.player.equipment.weapon}")
+
+    def on_render(
+        self, console: tcod.console.Console, context: tcod.context.Context
+    ) -> None:
+        """Render an inventory menu, which displays the items in the inventory, and the letter to select them
+        Will move to a different position based on where the player is located, so the player can always see where they are
+        """
+        super().on_render(console, context)
+
+        self.render_count += 1
+
+        starting_x = 1
+        starting_y = 4
+        hilt_length = 6
+        sword_length = 11
+        sword_half_y = 2
+        sword_full_y = 3
+
+        console.print(starting_x, starting_y-2, f"MACE {self.render_count}")
+
+        if self.hit_at > 0:
+            console.print(starting_x, starting_y-1, f"HIT AT {self.hit_at}")
+
+        # Can show the damage range numbers
+        # console.print(starting_x+hilt_length, starting_y + sword_full_y + 1, "1", fg=colors.white, bg=colors.black)
+        # console.print(starting_x+hilt_length+sword_length, starting_y + sword_full_y + 1, "5", fg=colors.white, bg=colors.black)
+
+        console.print(starting_x, starting_y, text="""
+├────┼═══════════╗
+│││││■           ■
+├────┼═══════════╝
+""",
+        fg=(100, 100, 100), bg=colors.black)
+
+        # Pause every few frames?
+        # if self.render_count % 50 == 0:
+        #     self.wait_count = 10
+
+        # if self.wait_count > 0:
+        #     attack_mod = sword_length * 2
+        #     attack_power = sword_length
+        # else:
+        #     attack_mod = sword_length
+        #     attack_power = self.render_count % sword_length
+
+        if self.render_count % 1 == 0:
+            self.up_count += round(self.iter_count * self.direction_mod)
+
+            if self.up_count >= sword_length:
+                self.up_count = sword_length
+                self.direction_mod = -1
+                self.iter_count += 0.1
+            elif self.up_count <= 0:
+                self.up_count = 0
+                self.direction_mod = 1
+                self.iter_count += 0.1
+
+            attack_mod = sword_length
+            attack_power = self.render_count % sword_length
+
+        if self.iter_count > sword_length // 3:
+            self.iter_count = sword_length // 3
+
+        # self.wait_count -= 1
+
+        # print(f"POWER {attack_power=}")
+        # if attack_power == 0:
+        #     attack_mod = 0 if attack_mod == sword_length else sword_length
+
+        # attack_bar_text = "█"*(attack_mod - attack_power + 1)
+        attack_bar_text = "█"*self.up_count
+        color_strength = ((int)(self.up_count / sword_length * 100) + 50)
+        console.print(starting_x+hilt_length, starting_y+sword_half_y, attack_bar_text, fg=(0, color_strength, color_strength))
+
+    def get_damage(self, fill_percent):
+        for threshold, damage in reversed(self.damage_ranges):
+            if fill_percent >= threshold:
+                return damage
+        return 1
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
+        # QUIDEL
+        print("HERO ATTACK {event.sym} at {self.render_count}")
+
+        self.iter_count = 1
+
+        fill_percent = self.up_count / 11 * 100
+
+        # done_damage = max(d for p, d in self.damage_ranges if fill_percent >= p)
+        done_damage = self.get_damage(fill_percent)
+
+        # Could convert percent directly to damage, but means only 100% is max damage which is really hard to do
+        # done_damage = math.floor(((fill_percent / 100) * (max_damage - min_damage)) + min_damage)
+        self.hit_at = done_damage
+
+        return MainGameEventHandler(self.engine)
+
 class MainGameEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
@@ -137,7 +253,10 @@ class MainGameEventHandler(EventHandler):
         modifier = event.mod
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
-            action = BumpAction(player, dx, dy)
+            action: ActionWithDirection = BumpAction(player, dx, dy)
+
+            if action.target_actor:
+                return HeroAttackHandler(self.engine)
         elif key in WAIT_KEYS:
             action = WaitAction(player)
         elif key in ESCAPE_KEYS:

@@ -26,7 +26,7 @@ def new_game() -> Engine:
     """Return a brand new game session as an Engine instance"""
     player = copy.deepcopy(entity_factory.player)
 
-    #  Assign our default equipment
+    # Assign our default equipment
     dagger = copy.deepcopy(entity_factory.dagger)
     dagger.parent = player.inventory
     player.inventory.items.append(dagger)

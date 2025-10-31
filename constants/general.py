@@ -6,6 +6,10 @@ import tcod
 if TYPE_CHECKING:
     pass
 
+# TTODO For demo:
+# Different color tiles and random gen per floor
+# Show equipped items on Character instead of in inventory. Don't need a way to drop them
+
 # TODO IDEAS:
 # Real time "action commands" for attack/defense
 # More interesting stat system as a result
@@ -18,9 +22,19 @@ if TYPE_CHECKING:
 # Momentum style push back on attack?
 # Pillars, doors, chasms, water, other room gen features (would be more types of tiles)
 # Change healing potions to some kind of MP based spell? They're really boring at the moment
+# Game timer for high scores? And a scoreboard in general
 # More RANDOM stuff, including enemy HP and so on, floors currently (obviously) feel hecka samey
+# Undead and turning undead concepts
+# Very very simple initial character choices? Changes stats, HP, equipment, etc.
+# Stances like Aggressive or Defensive that build over time (rewarding keeping them on and planning and not switching). Most have a downside. Do nothing the first turn they're switched?
+# Charge you target enemies with a skill, also builds up over time
+# Doors on rooms
+# Go to orthagonal movement only with no diagonals?
+# Torches that dwindle down the light radius over time. Would be cool if the color flickered slightly
+# Holy Symbol a fallback option (1 or 2 squares radius), would be a different color
+# Directional shield you can hold - slower movement but defensive bonus or damage reduction
 
-DEBUG_NO_FOG_OF_WAR = False
+DEBUG_NO_FOG_OF_WAR = True
 
 SAVE_FILE = "into_the_dark.sav"
 FPS = 30

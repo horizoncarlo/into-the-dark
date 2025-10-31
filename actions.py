@@ -165,6 +165,10 @@ class MeleeAction(ActionWithDirection):
         if not target:
             raise exceptions.ImpossibleAction("Nothing to attack")
 
+        # QUIDEL
+        if self.entity is self.engine.player:
+            raise exceptions.StartAttackHandler()
+
         damage = self.entity.fighter.base_power - target.fighter.base_defense
         attack_color = (
             colors.player_atk if self.entity is self.engine.player else colors.enemy_atk
